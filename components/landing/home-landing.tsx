@@ -296,7 +296,7 @@ export function HomeLanding() {
                 <div>
                   <p className="font-bold text-[#1f3553]">No Contracts. No Limits.</p>
                   <p className="text-sm text-slate-700">
-                    Valid driver's license and full coverage insurance required.
+                    Valid driver&apos;s license and full coverage insurance required.
                   </p>
                 </div>
               </div>
