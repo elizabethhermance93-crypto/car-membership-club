@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { Manrope } from "next/font/google";
 
 import "./globals.css";
-import { SiteFooter } from "@/components/layout/site-footer";
-import { SiteHeader } from "@/components/layout/site-header";
+import { SiteShell } from "@/components/layout/site-shell";
 import { siteConfig } from "@/lib/site-data";
 
 const manrope = Manrope({
@@ -58,9 +57,7 @@ export default function RootLayout({
         >
           Skip to main content
         </a>
-        <SiteHeader />
-        <main id="main-content">{children}</main>
-        <SiteFooter />
+        <SiteShell>{children}</SiteShell>
       </body>
     </html>
   );
