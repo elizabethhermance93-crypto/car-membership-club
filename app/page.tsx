@@ -1,13 +1,29 @@
 import type { Metadata } from "next";
 
-import { HomeLanding } from "@/components/landing/home-landing";
+import { CTASection } from "@/components/sections/CTASection";
+import { FAQAccordion } from "@/components/sections/FAQAccordion";
+import { Hero } from "@/components/sections/Hero";
+import { PricingCards } from "@/components/sections/PricingCards";
+import { Steps } from "@/components/sections/Steps";
+import { Testimonials } from "@/components/sections/Testimonials";
+import { VehicleCarousel } from "@/components/sections/VehicleCarousel";
 
 export const metadata: Metadata = {
-  title: "Zipsters Car Membership Club",
+  title: "Home",
   description:
-    "Join Zipsters car membership with weekly dues, flexible swaps, and transparent membership plans.",
+    "Polished placeholder home page scaffold with sliders, motion, and responsive sections.",
 };
 
 export default function HomePage() {
-  return <HomeLanding />;
+  return (
+    <>
+      <Hero />
+      <Steps />
+      <PricingCards />
+      <VehicleCarousel />
+      <Testimonials />
+      <FAQAccordion />
+      <CTASection />
+    </>
+  );
 }

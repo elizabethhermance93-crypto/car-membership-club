@@ -1,25 +1,20 @@
 import type { MetadataRoute } from "next";
 
-import { siteConfig } from "@/lib/site-data";
+import { siteContent } from "@/content/siteContent";
 
 const routes = [
   "",
   "/how-it-works",
-  "/memberships",
-  "/vehicles",
-  "/join",
-  "/join/confirmation",
+  "/pricing",
   "/faq",
   "/contact",
-  "/service-area",
-  "/privacy",
+  "/apply",
+  "/privacy-policy",
   "/terms",
-  "/member-portal",
-  "/dashboard",
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = siteConfig.siteUrl.replace(/\/$/, "");
+  const baseUrl = siteContent.seo.siteUrl.replace(/\/$/, "");
 
   return routes.map((route) => ({
     url: `${baseUrl}${route}`,

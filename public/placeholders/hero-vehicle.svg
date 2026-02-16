@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="560" viewBox="0 0 1100 560" role="img" aria-label="Vehicle placeholder">
+  <rect width="1100" height="560" rx="24" fill="#f1f5f9"/>
+  <rect x="120" y="220" width="860" height="180" rx="60" fill="#94a3b8"/>
+  <path d="M250 220L360 150H710L840 220H250Z" fill="#64748b"/>
+  <circle cx="320" cy="410" r="60" fill="#334155"/>
+  <circle cx="800" cy="410" r="60" fill="#334155"/>
+  <circle cx="320" cy="410" r="28" fill="#cbd5e1"/>
+  <circle cx="800" cy="410" r="28" fill="#cbd5e1"/>
+  <rect x="420" y="170" width="230" height="40" rx="20" fill="#cbd5e1" opacity="0.7"/>
+  <text x="320" y="110" fill="#475569" font-size="44" font-family="Arial, sans-serif" font-weight="700">VEHICLE PLACEHOLDER</text>
+</svg>
