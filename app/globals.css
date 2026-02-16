@@ -1,11 +1,11 @@
 @import "tailwindcss";
+@import "swiper/css";
+@import "swiper/css/navigation";
+@import "swiper/css/pagination";
 
 :root {
-  --background: #f8fafd;
+  --background: #f8fafc;
   --foreground: #0f172a;
-  --brand-blue: #2a67ad;
-  --brand-navy: #1f3553;
-  --brand-gold: #b88719;
 }
 
 @theme inline {
@@ -26,4 +26,13 @@ body {
 
 a {
   text-underline-offset: 3px;
+}
+
+.vehicle-swiper .swiper-button-next,
+.vehicle-swiper .swiper-button-prev {
+  color: #0f172a;
+}
+
+.vehicle-swiper .swiper-pagination-bullet-active {
+  background: #0284c7;
 }

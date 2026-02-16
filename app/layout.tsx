@@ -2,44 +2,45 @@ import type { Metadata } from "next";
 import { Manrope } from "next/font/google";
 
 import "./globals.css";
-import { SiteShell } from "@/components/layout/site-shell";
-import { siteConfig } from "@/lib/site-data";
+import { SiteFooter } from "@/components/layout/SiteFooter";
+import { SiteHeader } from "@/components/layout/SiteHeader";
+import { siteContent } from "@/content/siteContent";
 
 const manrope = Manrope({
   variable: "--font-manrope",
   subsets: ["latin"],
 });
 
-const siteUrl = siteConfig.siteUrl;
+const siteUrl = siteContent.seo.siteUrl;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: siteConfig.defaultTitle,
-    template: "%s | Zipsters Membership Club",
+    default: siteContent.seo.defaultTitle,
+    template: `%s | ${siteContent.seo.siteName}`,
   },
-  description: siteConfig.defaultDescription,
+  description: siteContent.seo.defaultDescription,
   openGraph: {
     type: "website",
     locale: "en_US",
     url: siteUrl,
-    title: siteConfig.defaultTitle,
-    description: siteConfig.defaultDescription,
-    siteName: "Zipsters Membership Club",
+    title: siteContent.seo.defaultTitle,
+    description: siteContent.seo.defaultDescription,
+    siteName: siteContent.seo.siteName,
     images: [
       {
-        url: "/assets/refresh-the-look-logo.png",
-        width: 791,
-        height: 1190,
-        alt: "Refresh The Look USA logo",
+        url: siteContent.seo.ogImage,
+        width: 1200,
+        height: 630,
+        alt: `${siteContent.seo.siteName} OpenGraph image`,
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: siteConfig.defaultTitle,
-    description: siteConfig.defaultDescription,
-    images: ["/assets/refresh-the-look-logo.png"],
+    title: siteContent.seo.defaultTitle,
+    description: siteContent.seo.defaultDescription,
+    images: [siteContent.seo.ogImage],
   },
 };
 
@@ -57,7 +58,9 @@ export default function RootLayout({
         >
           Skip to main content
         </a>
-        <SiteShell>{children}</SiteShell>
+        <SiteHeader />
+        <main id="main-content">{children}</main>
+        <SiteFooter />
       </body>
     </html>
   );
