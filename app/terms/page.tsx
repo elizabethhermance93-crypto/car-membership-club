@@ -43,7 +43,7 @@ export default function TermsPage() {
               Requirements and Eligibility
             </h2>
             <p>
-              Members must provide a valid driver's license and maintain required
+              Members must provide a valid driver&apos;s license and maintain required
               insurance coverage. Additional verification may be requested where
               required by policy or law.
             </p>

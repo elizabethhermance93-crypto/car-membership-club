@@ -38,7 +38,7 @@ export default async function JoinConfirmationPage({
           </p>
 
           <div className="mt-6 rounded-xl bg-[#f5f8fd] p-4 text-sm leading-7 text-slate-700">
-            Please keep your driver's license and insurance information available so
+            Please keep your driver&apos;s license and insurance information available so
             the representative can move quickly through onboarding.
           </div>
 
