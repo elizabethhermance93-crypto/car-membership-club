@@ -5,6 +5,7 @@
 @import "swiper/css";
 @import "swiper/css/navigation";
 @import "swiper/css/pagination";
+@import "swiper/css/effect-fade";
 
 :root {
   --background: #f8fafc;
@@ -185,48 +186,6 @@ a {
   display: none;
 }
 
-/* Hero: crossfade animations (200ms ease-out) so transition always runs */
-@keyframes hero-bg-out {
-  from { opacity: 1; }
-  to { opacity: 0; }
-}
-@keyframes hero-bg-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-@keyframes hero-car-out {
-  from { opacity: 1; transform: translateY(0) scale(1); }
-  to { opacity: 0; transform: translateY(6px) scale(0.99); }
-}
-@keyframes hero-car-in {
-  from { opacity: 0; transform: translateY(-6px) scale(1.01); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-.hero-bg-layer-out {
-  animation: hero-bg-out 0.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-.hero-bg-layer-in {
-  animation: hero-bg-in 0.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-.hero-car-layer-out {
-  animation: hero-car-out 0.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-.hero-car-layer-in {
-  animation: hero-car-in 0.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-@media (prefers-reduced-motion: reduce) {
-  .hero-bg-layer-out,
-  .hero-bg-layer-in,
-  .hero-car-layer-out,
-  .hero-car-layer-in {
-    animation-duration: 0s;
-  }
-  .hero-bg-layer-out { opacity: 0; }
-  .hero-bg-layer-in { opacity: 1; }
-  .hero-car-layer-out { opacity: 0; transform: translateY(6px) scale(0.99); }
-  .hero-car-layer-in { opacity: 1; transform: translateY(0) scale(1); }
-}
-
 /* Hero: stable dark overlay (above images, below text) */
 .hero-overlay {
   background:
@@ -234,28 +193,44 @@ a {
     linear-gradient(90deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.2) 55%, rgba(0, 0, 0, 0.1) 100%);
 }
 
-/* Hero: logo row — inactive muted, hover brighten, active full color */
+/* Hero: headline middle word gradient (reference-style) */
+.hero-headline-gradient {
+  background: linear-gradient(to bottom right, #facc15, #eab308);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Hero: logo row — grayscale inactive, active scale-125, 100ms transition (reference) */
 .hero-logo-btn {
-  transition: opacity 0.15s ease, filter 0.15s ease, transform 0.15s ease;
-  filter: grayscale(1) brightness(1.8);
-  opacity: 0.55;
+  transition: filter 0.1s ease, transform 0.1s ease, opacity 0.1s ease;
+  filter: grayscale(1);
+  opacity: 0.7;
 }
 .hero-logo-btn:hover {
-  opacity: 0.85;
+  opacity: 0.9;
   transform: scale(1.05);
 }
 .hero-logo-btn[data-active="true"] {
   filter: none;
   opacity: 1;
-  transform: none;
+  transform: scale(1.25);
 }
 .hero-logo-btn[data-active="true"]:hover {
   opacity: 1;
-  transform: none;
+  transform: scale(1.25);
 }
 @media (prefers-reduced-motion: reduce) {
+  .hero-logo-btn,
+  .hero-logo-btn[data-active="true"] {
+    transition: none;
+  }
   .hero-logo-btn:hover,
   .hero-logo-btn[data-active="true"]:hover {
-    transform: none;
+    transform: scale(1);
+  }
+  .hero-logo-btn[data-active="true"],
+  .hero-logo-btn[data-active="true"]:hover {
+    transform: scale(1.25);
   }
 }

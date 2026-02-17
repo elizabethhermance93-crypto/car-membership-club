@@ -25,7 +25,7 @@ export function PricingCards({ showHeading = true }: PricingCardsProps) {
 
   return (
     <section className="relative overflow-hidden bg-stone-100 py-16 lg:py-24 transition-colors duration-300 dark:bg-stone-900" id="pricing">
-      <PrismBackground variant="dark" />
+      <PrismBackground />
       <Container className="relative">
         {showHeading && (
           <div className="mx-auto max-w-3xl text-center">

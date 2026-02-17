@@ -7,10 +7,10 @@ import { motion } from "framer-motion";
 
 import { siteContent } from "@/content/siteContent";
 import { Container } from "@/components/ui/Container";
-import { SectionReveal } from "@/components/ui/SectionReveal";
 import { ctaHover, hoverTransition, prefersReducedMotion } from "@/lib/motion";
 
-const CROSSFADE_DURATION_MS = 200;
+const AUTOPLAY_DELAY_MS = 5000;
+const FADE_DURATION_MS = 350;
 const FALLBACK_BG = "/hero/bg-placeholder.svg";
 const FALLBACK_CAR = "/hero/car-placeholder.svg";
 
@@ -26,163 +26,198 @@ function getBannerSrc(
 
 export function Hero() {
   const { hero, heroBanners } = siteContent;
+  const count = heroBanners?.length ?? 0;
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [transitionFrom, setTransitionFrom] = useState(0);
-  const [transitionTo, setTransitionTo] = useState(0);
   const [reduceMotion, setReduceMotion] = useState(false);
   const [failedUrls, setFailedUrls] = useState<Set<string>>(() => new Set());
-  const transitionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoplayRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const safeIndex = count > 0 ? Math.min(activeIndex, count - 1) : 0;
+  const activeBanner = count > 0 ? heroBanners[safeIndex] : null;
 
   useEffect(() => {
     setReduceMotion(prefersReducedMotion());
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
-    };
   }, []);
 
   const useFallback = useCallback((url: string) => {
     setFailedUrls((prev) => (prev.has(url) ? prev : new Set(prev).add(url)));
   }, []);
 
-  const preloadBanner = useCallback((index: number) => {
-    const b = heroBanners[index];
-    if (!b) return;
-    [b.bgSrc, b.carSrc].forEach((src) => {
-      const img = new window.Image();
-      img.src = src;
-    });
-  }, [heroBanners]);
-
-  const setSlide = useCallback(
+  const preloadBanner = useCallback(
     (index: number) => {
-      if (index === activeIndex) return;
-      if (isTransitioning) return;
-      if (reduceMotion) {
-        setActiveIndex(index);
-        return;
-      }
-      setTransitionFrom(activeIndex);
-      setTransitionTo(index);
-      setIsTransitioning(true);
-      if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
-      transitionTimeoutRef.current = setTimeout(() => {
-        transitionTimeoutRef.current = null;
-        setActiveIndex(index);
-        setIsTransitioning(false);
-      }, CROSSFADE_DURATION_MS);
+      if (!heroBanners || index < 0 || index >= heroBanners.length) return;
+      const b = heroBanners[index];
+      [b.bgSrc, b.carSrc].forEach((src) => {
+        const img = new window.Image();
+        img.src = src;
+      });
     },
-    [activeIndex, isTransitioning, reduceMotion]
+    [heroBanners]
   );
 
-  const showTwoLayers = isTransitioning && !reduceMotion;
-  const fromBanner = heroBanners[transitionFrom] ?? heroBanners[0];
-  const toBanner = heroBanners[transitionTo] ?? heroBanners[0];
-  const activeBanner = heroBanners[activeIndex] ?? heroBanners[0];
+  const goToSlide = useCallback(
+    (index: number) => {
+      if (count <= 0 || index < 0 || index >= count) return;
+      setActiveIndex(index);
+    },
+    [count]
+  );
+
+  useEffect(() => {
+    if (reduceMotion || count <= 1) return;
+    autoplayRef.current = setInterval(() => {
+      setActiveIndex((i) => (i + 1) % count);
+    }, AUTOPLAY_DELAY_MS);
+    return () => {
+      if (autoplayRef.current) {
+        clearInterval(autoplayRef.current);
+        autoplayRef.current = null;
+      }
+    };
+  }, [count, reduceMotion]);
+
+  if (!hero || !heroBanners || count === 0) {
+    return (
+      <section className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-gradient-to-br from-stone-900">
+        <p className="relative z-10 text-white">Loading…</p>
+      </section>
+    );
+  }
 
   return (
-    <section className="relative min-h-screen w-full overflow-hidden bg-stone-900">
-      {/* Layer 1: Full-bleed backgrounds — two-layer crossfade via CSS animation */}
+    <section
+      className="relative flex min-h-screen w-full flex-col justify-center overflow-hidden bg-gradient-to-br from-stone-900 pt-20 pb-10 snap-start lg:items-center lg:pb-0"
+      aria-label="Hero"
+    >
+      {/* Background layers — opacity transition for smooth fade */}
       <div className="absolute inset-0 z-0">
-        {showTwoLayers ? (
-          <>
-            <div
-              key={`bg-from-${transitionFrom}`}
-              className="absolute inset-0 hero-bg-layer-out"
-            >
-              <Image
-                src={getBannerSrc(fromBanner, failedUrls, "bg")}
-                alt=""
-                fill
-                className="object-cover object-center"
-                sizes="100vw"
-                unoptimized={fromBanner.bgSrc.endsWith(".svg")}
-                onError={() => useFallback(fromBanner.bgSrc)}
-              />
-            </div>
-            <div
-              key={`bg-to-${transitionTo}`}
-              className="absolute inset-0 hero-bg-layer-in"
-            >
-              <Image
-                src={getBannerSrc(toBanner, failedUrls, "bg")}
-                alt=""
-                fill
-                priority={transitionTo === 0}
-                className="object-cover object-center"
-                sizes="100vw"
-                unoptimized={toBanner.bgSrc.endsWith(".svg")}
-                onError={() => useFallback(toBanner.bgSrc)}
-              />
-            </div>
-          </>
-        ) : (
-          <div className="absolute inset-0">
+        {heroBanners.map((banner, index) => (
+          <div
+            key={banner.id}
+            className="absolute inset-0 transition-opacity ease-out"
+            style={{
+              opacity: index === safeIndex ? 1 : 0,
+              transitionDuration: reduceMotion ? "0ms" : `${FADE_DURATION_MS}ms`,
+            }}
+          >
             <Image
-              src={getBannerSrc(activeBanner, failedUrls, "bg")}
+              src={getBannerSrc(banner, failedUrls, "bg")}
               alt=""
               fill
-              priority={activeIndex === 0}
+              priority={index === 0}
               className="object-cover object-center"
               sizes="100vw"
-              unoptimized={activeBanner.bgSrc.endsWith(".svg")}
-              onError={() => useFallback(activeBanner.bgSrc)}
+              unoptimized={banner.bgSrc.endsWith(".svg")}
+              onError={() => useFallback(banner.bgSrc)}
             />
           </div>
-        )}
+        ))}
       </div>
 
-      {/* Layer 2: Stable dark overlay — same on every banner, above images, below text */}
       <div
         className="pointer-events-none absolute inset-0 z-[1] hero-overlay"
         aria-hidden
       />
 
-      {/* Layer 3: Left content — same across all slides; no reflow during slide change */}
-      <Container className="relative z-10 flex min-h-screen flex-col justify-center py-20 lg:py-24">
-        <div className="grid w-full max-w-2xl gap-8 lg:max-w-xl">
-          <SectionReveal y={24}>
-            <div className="flex flex-col gap-4 text-center lg:gap-6 lg:text-left">
-              <h1 className="text-4xl font-extrabold tracking-tight drop-shadow-lg sm:text-5xl lg:text-6xl text-white">
-                {hero.heading}
-                <span className="bg-gradient-to-br from-yellow-500 to-yellow-600 bg-clip-text text-transparent">
-                {hero.highlighted}
-              </span>
-                {hero.headingSuffix}
-            </h1>
-              <p className="text-lg font-bold text-white sm:text-xl lg:text-2xl">
-                {hero.tagline}
-              </p>
-            </div>
-          </SectionReveal>
+      <div className="relative z-10 w-full px-4 lg:px-16">
+        <div className="mx-auto grid w-full max-w-7xl gap-8 lg:gap-12">
+          {/* Two-column: left = copy, right = car; then mobile buttons */}
+          <div className="grid w-full grid-cols-1 justify-items-center gap-8 overflow-hidden lg:grid-cols-2 lg:h-[60vh]">
+            {/* Left: headline + bullets + desktop CTA */}
+            <div className="flex flex-col justify-around space-y-6 lg:space-y-4">
+              <div className="flex flex-wrap justify-center gap-2 text-center drop-shadow-lg lg:justify-start lg:gap-4 lg:text-left">
+                <p className="text-3xl font-extrabold text-white lg:text-5xl">
+                  {hero.heading.trim()}
+                </p>
+                <p className="hero-headline-gradient text-3xl font-extrabold lg:text-5xl">
+                  {hero.highlighted}
+                </p>
+                <p className="text-3xl font-extrabold text-white lg:text-5xl">
+                  {hero.headingSuffix?.trim() ?? ""}
+                </p>
+              </div>
 
-          <SectionReveal y={20} delay={0.05}>
-            <ul className="mx-auto grid max-w-xl gap-4 text-left sm:gap-5 lg:mx-0 text-white">
-              {hero.bullets.map((item, index) => (
-                <li
-                  key={index}
-                  className="flex items-start gap-4 rounded-lg py-1"
-                >
-                  <span
-                    className="mt-1.5 h-2 w-2 shrink-0 rounded-full border-2 border-white bg-transparent"
-                    aria-hidden
-                  />
-                  <div>
-                    <p className="font-bold sm:text-lg">{item.title}</p>
-                    <p className="text-sm text-stone-200 sm:text-base">
-                      {item.description}
-                    </p>
+              <div className="grid gap-4 text-sm text-white lg:gap-8 lg:text-base">
+                {hero.bullets.map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center space-x-4"
+                  >
+                    <span
+                      className="h-4 w-4 shrink-0 rounded-full border-2 border-white"
+                      aria-hidden
+                    />
+                    <div>
+                      <p className="font-bold lg:text-lg">{item.title}</p>
+                      <p className="text-white/90">{item.description}</p>
+                    </div>
                   </div>
-                </li>
-              ))}
-            </ul>
-          </SectionReveal>
+                ))}
+              </div>
 
-          <SectionReveal y={20} delay={0.1}>
-            <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
+              <div className="hidden lg:block lg:w-1/2">
+                <motion.span
+                  whileHover={ctaHover}
+                  whileTap={{ scale: 0.98 }}
+                  transition={hoverTransition}
+                  className="inline-block"
+                >
+                  <Link
+                    href={hero.primaryCta.href}
+                    className="inline-flex items-center justify-center rounded-lg bg-yellow-500 px-6 py-3.5 text-base font-semibold text-stone-900 shadow-lg shadow-yellow-500/25 transition-[box-shadow,background-color] duration-200 hover:bg-yellow-400 hover:shadow-xl hover:shadow-yellow-500/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900"
+                  >
+                    {hero.primaryCta.label}
+                  </Link>
+                </motion.span>
+              </div>
+            </div>
+
+            {/* Right: car image */}
+            <div className="relative w-full min-h-[20vh] lg:min-w-[50vw]">
+              <div className="absolute inset-0 hidden items-end justify-center lg:flex">
+                {heroBanners.map((banner, index) => (
+                  <div
+                    key={banner.id}
+                    className="absolute bottom-0 left-1/2 flex w-full justify-center transition-opacity ease-out lg:left-0 lg:right-0"
+                    style={{
+                      opacity: index === safeIndex ? 1 : 0,
+                      transitionDuration: reduceMotion ? "0ms" : `${FADE_DURATION_MS}ms`,
+                    }}
+                  >
+                    <div className="relative h-[40vh] w-full max-w-[90vw] lg:max-w-none">
+                      <Image
+                        src={getBannerSrc(banner, failedUrls, "car")}
+                        alt={banner.alt}
+                        fill
+                        priority={index === 0}
+                        className="object-contain object-bottom"
+                        sizes="(max-width: 1024px) 90vw, 50vw"
+                        unoptimized={banner.carSrc.endsWith(".svg")}
+                        onError={() => useFallback(banner.carSrc)}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {/* Mobile car */}
+              <div className="relative aspect-[16/10] w-full min-h-[180px] lg:hidden">
+                {activeBanner && (
+                  <Image
+                    src={getBannerSrc(activeBanner, failedUrls, "car")}
+                    alt={activeBanner.alt}
+                    fill
+                    priority={safeIndex === 0}
+                    className="object-contain object-bottom"
+                    sizes="100vw"
+                    unoptimized={activeBanner.carSrc.endsWith(".svg")}
+                    onError={() => useFallback(activeBanner.carSrc)}
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Mobile: two buttons stacked */}
+            <div className="grid w-full gap-2 lg:hidden">
               <motion.span
                 whileHover={ctaHover}
                 whileTap={{ scale: 0.98 }}
@@ -191,9 +226,9 @@ export function Hero() {
               >
                 <Link
                   href={hero.primaryCta.href}
-                  className="inline-flex w-full items-center justify-center rounded-lg bg-yellow-500 px-6 py-3.5 text-base font-semibold text-stone-900 shadow-lg shadow-yellow-500/25 transition-[box-shadow,background-color] duration-[180ms] ease-out hover:bg-yellow-400 hover:shadow-xl hover:shadow-yellow-500/30 sm:w-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900"
+                  className="inline-flex w-full items-center justify-center rounded-lg bg-yellow-500 px-6 py-3.5 text-base font-semibold text-stone-900 shadow-lg transition-[box-shadow,background-color] duration-200 hover:bg-yellow-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900"
                 >
-                {hero.primaryCta.label}
+                  {hero.primaryCta.label}
                 </Link>
               </motion.span>
               <motion.span
@@ -203,132 +238,22 @@ export function Hero() {
               >
                 <Link
                   href={hero.secondaryCta.href}
-                  className="inline-flex w-full items-center justify-center rounded-lg border-2 border-white bg-transparent px-6 py-3.5 text-base font-semibold text-white transition-colors duration-200 hover:bg-white hover:text-stone-900 sm:w-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900"
+                  className="inline-flex w-full items-center justify-center rounded-lg py-3.5 text-base font-semibold text-white transition-colors hover:text-white/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900"
                 >
-                {hero.secondaryCta.label}
+                  {hero.secondaryCta.label}
                 </Link>
               </motion.span>
             </div>
-          </SectionReveal>
-        </div>
-      </Container>
-
-      {/* Layer 4: Car — right-anchored; crossfade via CSS animation */}
-      <div className="pointer-events-none absolute right-0 top-0 bottom-0 z-[2] hidden w-[50%] max-w-[720px] lg:block">
-        <div className="absolute inset-0 flex items-end justify-end">
-          <div className="relative h-[72%] w-full min-h-[260px] max-h-[85vh]">
-            {showTwoLayers ? (
-              <>
-                <div
-                  key={`car-from-${transitionFrom}`}
-                  className="absolute inset-0 hero-car-layer-out"
-                >
-                  <Image
-                    src={getBannerSrc(fromBanner, failedUrls, "car")}
-                    alt={fromBanner.alt}
-                    fill
-                    className="object-contain object-bottom"
-                    sizes="50vw"
-                    unoptimized={fromBanner.carSrc.endsWith(".svg")}
-                    onError={() => useFallback(fromBanner.carSrc)}
-                  />
-                </div>
-                <div
-                  key={`car-to-${transitionTo}`}
-                  className="absolute inset-0 hero-car-layer-in"
-                >
-                  <Image
-                    src={getBannerSrc(toBanner, failedUrls, "car")}
-                    alt={toBanner.alt}
-                    fill
-                    priority={transitionTo === 0}
-                    className="object-contain object-bottom"
-                    sizes="50vw"
-                    unoptimized={toBanner.carSrc.endsWith(".svg")}
-                    onError={() => useFallback(toBanner.carSrc)}
-                  />
-                </div>
-              </>
-            ) : (
-              <div className="absolute inset-0">
-                <Image
-                  src={getBannerSrc(activeBanner, failedUrls, "car")}
-                  alt={activeBanner.alt}
-                  fill
-                  priority={activeIndex === 0}
-                  className="object-contain object-bottom"
-                  sizes="50vw"
-                  unoptimized={activeBanner.carSrc.endsWith(".svg")}
-                  onError={() => useFallback(activeBanner.carSrc)}
-                />
-              </div>
-            )}
           </div>
-        </div>
-      </div>
 
-      {/* Mobile: car below content, same crossfade */}
-      <div className="relative z-10 mx-auto w-full max-w-2xl px-4 lg:hidden">
-        <div className="relative aspect-[16/10] w-full min-h-[200px]">
-          {showTwoLayers ? (
-            <>
-              <div
-                key={`car-m-from-${transitionFrom}`}
-                className="absolute inset-0 hero-car-layer-out"
-              >
-                <Image
-                  src={getBannerSrc(fromBanner, failedUrls, "car")}
-                  alt={fromBanner.alt}
-                  fill
-                  className="object-contain object-bottom"
-                  sizes="100vw"
-                  unoptimized={fromBanner.carSrc.endsWith(".svg")}
-                  onError={() => useFallback(fromBanner.carSrc)}
-                />
-              </div>
-              <div
-                key={`car-m-to-${transitionTo}`}
-                className="absolute inset-0 hero-car-layer-in"
-              >
-                <Image
-                  src={getBannerSrc(toBanner, failedUrls, "car")}
-                  alt={toBanner.alt}
-                  fill
-                  priority={transitionTo === 0}
-                  className="object-contain object-bottom"
-                  sizes="100vw"
-                  unoptimized={toBanner.carSrc.endsWith(".svg")}
-                  onError={() => useFallback(toBanner.carSrc)}
-                />
-              </div>
-            </>
-          ) : (
-            <div className="absolute inset-0">
-              <Image
-                src={getBannerSrc(activeBanner, failedUrls, "car")}
-                alt={activeBanner.alt}
-                fill
-                priority={activeIndex === 0}
-                className="object-contain object-bottom"
-                sizes="100vw"
-                unoptimized={activeBanner.carSrc.endsWith(".svg")}
-                onError={() => useFallback(activeBanner.carSrc)}
-              />
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Layer 5: Bottom center — 6 logos: inactive muted, active full color, hover 150ms */}
-      <div className="absolute bottom-0 left-0 right-0 z-20 pb-6 lg:pb-8">
-        <Container>
+          {/* Logo row — 6 columns, grayscale, active scale-125, 100ms transition */}
           <div
-            className="no-scrollbar flex justify-center gap-6 overflow-x-auto px-2 py-2 scroll-smooth md:gap-10 lg:gap-14 [scroll-snap-type:x_mandatory]"
+            className="hidden lg:grid lg:grid-cols-6 lg:mx-auto lg:gap-14 justify-items-center"
             role="tablist"
             aria-label="Select hero banner"
           >
             {heroBanners.map((banner, index) => {
-              const isActive = activeIndex === index;
+              const isActive = safeIndex === index;
               return (
                 <button
                   key={banner.id}
@@ -336,12 +261,51 @@ export function Hero() {
                   role="tab"
                   aria-selected={isActive}
                   aria-label={`Show ${banner.name} banner`}
-                  onClick={() => setSlide(index)}
+                  onClick={() => goToSlide(index)}
                   onMouseEnter={() => preloadBanner(index)}
-                  className="hero-logo-btn flex shrink-0 cursor-pointer items-center justify-center rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900 [scroll-snap-align:center]"
+                  className="hero-logo-btn flex shrink-0 cursor-pointer items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900"
                   data-active={isActive}
                 >
-                  <span className="flex h-9 items-center md:h-10 lg:h-14">
+                  <span className="flex h-9 items-center lg:h-14">
+                    <Image
+                      src={banner.logoSrc}
+                      alt=""
+                      width={80}
+                      height={40}
+                      className="h-full w-auto object-contain pointer-events-none"
+                      unoptimized={banner.logoSrc.endsWith(".svg")}
+                    />
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile: show logo strip as horizontal scroll */}
+      <div className="relative z-20 mt-6 px-4 pb-6 lg:hidden">
+        <Container>
+          <div
+            className="no-scrollbar flex justify-center gap-6 overflow-x-auto py-2 [scroll-snap-type:x_mandatory]"
+            role="tablist"
+            aria-label="Select hero banner"
+          >
+            {heroBanners.map((banner, index) => {
+              const isActive = safeIndex === index;
+              return (
+                <button
+                  key={banner.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  aria-label={`Show ${banner.name} banner`}
+                  onClick={() => goToSlide(index)}
+                  onMouseEnter={() => preloadBanner(index)}
+                  className="hero-logo-btn flex shrink-0 cursor-pointer items-center justify-center [scroll-snap-align:center] focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900"
+                  data-active={isActive}
+                >
+                  <span className="flex h-9 items-center">
                     <Image
                       src={banner.logoSrc}
                       alt=""

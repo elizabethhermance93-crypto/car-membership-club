@@ -13,22 +13,22 @@ export function CarSubscriptionSection() {
   const { carSubscriptionSection, pricingSection } = siteContent;
 
   return (
-    <section className="relative overflow-hidden bg-stone-950 py-16 lg:py-24 transition-colors duration-300 dark:bg-stone-950">
+    <section className="relative overflow-hidden bg-stone-100 py-16 lg:py-24 transition-colors duration-300 dark:bg-stone-950">
       <PrismBackground />
       <Container className="relative">
         <div className="mx-auto max-w-4xl text-center">
-          <p className="text-sm font-bold uppercase tracking-wide text-white/90 md:text-base">
+          <p className="text-sm font-bold uppercase tracking-wide text-stone-600 md:text-base dark:text-white/90">
             {carSubscriptionSection.preheadline}
           </p>
-          <h2 className="mt-2 text-3xl font-extrabold tracking-tight md:text-4xl lg:text-5xl">
-            <span className="text-stone-200">
+          <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-stone-900 md:text-4xl lg:text-5xl dark:text-inherit">
+            <span className="text-stone-800 dark:text-stone-200">
               {carSubscriptionSection.headline}
             </span>
-            <span className="bg-gradient-to-br from-yellow-400 to-yellow-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-br from-yellow-500 to-yellow-600 bg-clip-text text-transparent dark:from-yellow-400 dark:to-yellow-500">
               {carSubscriptionSection.headlineHighlight}
             </span>
           </h2>
-          <p className="mt-3 text-lg text-white/95">
+          <p className="mt-3 text-lg text-stone-700 dark:text-white/95">
             {carSubscriptionSection.subtitle}
           </p>
         </div>
@@ -37,20 +37,20 @@ export function CarSubscriptionSection() {
           {carSubscriptionSection.cards.map((card, index) => (
             <motion.article
               key={card.id}
-              className="rounded-xl border border-stone-600/50 bg-stone-800/90 p-6 shadow-xl shadow-black/30 backdrop-blur-sm dark:border-stone-600/50 dark:bg-stone-800/90"
+              className="rounded-xl border border-stone-300 bg-white/95 p-6 shadow-xl shadow-stone-900/10 backdrop-blur-sm dark:border-stone-600/50 dark:bg-stone-800/90 dark:shadow-black/30"
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
               transition={{ duration: 0.4, delay: index * STAGGER }}
             >
-              <h3 className="text-xl font-bold text-white md:text-2xl">
+              <h3 className="text-xl font-bold text-stone-900 md:text-2xl dark:text-white">
                 {card.title}
                 {card.highlightVariant === "white" ? (
-                  <span className="font-bold text-white">
+                  <span className="font-bold text-stone-900 dark:text-white">
                     {card.highlighted}
                   </span>
                 ) : (
-                  <span className="bg-gradient-to-br from-yellow-400 to-yellow-500 bg-clip-text font-bold text-transparent">
+                  <span className="bg-gradient-to-br from-yellow-500 to-yellow-600 bg-clip-text font-bold text-transparent dark:from-yellow-400 dark:to-yellow-500">
                     {card.highlighted}
                   </span>
                 )}
@@ -60,7 +60,7 @@ export function CarSubscriptionSection() {
                 {card.paragraphs.map((para, i) => (
                   <p
                     key={i}
-                    className="text-sm leading-relaxed text-white/90 md:text-base"
+                    className="text-sm leading-relaxed text-stone-600 md:text-base dark:text-white/90"
                   >
                     {para}
                   </p>
