@@ -4,6 +4,7 @@ import {
   ReactNode,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   Children,
@@ -13,7 +14,7 @@ import { prefersReducedMotion } from "@/lib/motion";
 const BODY_CLASS = "landing-scroll-snap";
 const SECTION_TRANSITION_MS = 600;
 const LOCK_MS = 800;
-const WHEEL_THRESHOLD = 80;
+const WHEEL_THRESHOLD = 60;
 const TOUCH_THRESHOLD = 50;
 const SECTION_EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
 
@@ -34,19 +35,26 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
   const wheelAccumulator = useRef(0);
   const lockUntil = useRef(0);
   const touchStartY = useRef(0);
+  const activeIndexRef = useRef(activeIndex);
+  const transitionToIndexRef = useRef(transitionToIndex);
+
+  activeIndexRef.current = activeIndex;
+  transitionToIndexRef.current = transitionToIndex;
 
   const goTo = useCallback(
     (nextIndex: number) => {
+      const current = activeIndexRef.current;
+      const transitioning = transitionToIndexRef.current !== null;
       if (nextIndex < 0 || nextIndex >= sectionCount) return;
-      if (nextIndex === activeIndex) return;
-      if (transitionToIndex !== null) return;
+      if (nextIndex === current) return;
+      if (transitioning) return;
       if (reduceMotion) return;
 
       const now = Date.now();
       if (now < lockUntil.current) return;
 
       lockUntil.current = now + LOCK_MS;
-      setTransitionFromIndex(activeIndex);
+      setTransitionFromIndex(current);
       setTransitionToIndex(nextIndex);
 
       setTimeout(() => {
@@ -55,25 +63,26 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
         setTransitionFromIndex(null);
       }, SECTION_TRANSITION_MS);
     },
-    [
-      activeIndex,
-      sectionCount,
-      transitionToIndex,
-      reduceMotion,
-    ]
+    [sectionCount, reduceMotion]
   );
 
-  const goNext = useCallback(() => goTo(activeIndex + 1), [activeIndex, goTo]);
-  const goPrev = useCallback(() => goTo(activeIndex - 1), [activeIndex, goTo]);
+  const goNext = useCallback(() => {
+    goTo(activeIndexRef.current + 1);
+  }, [goTo]);
+  const goPrev = useCallback(() => {
+    goTo(activeIndexRef.current - 1);
+  }, [goTo]);
 
   useEffect(() => {
     setReduceMotion(prefersReducedMotion());
   }, []);
 
   useEffect(() => {
+    if (reduceMotion) return;
+
     const onWheel = (e: WheelEvent) => {
-      if (reduceMotion) return;
       e.preventDefault();
+      e.stopPropagation();
       wheelAccumulator.current += e.deltaY;
       if (wheelAccumulator.current >= WHEEL_THRESHOLD) {
         wheelAccumulator.current = 0;
@@ -81,11 +90,15 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
       } else if (wheelAccumulator.current <= -WHEEL_THRESHOLD) {
         wheelAccumulator.current = 0;
         goPrev();
+      } else {
+        wheelAccumulator.current = Math.max(
+          -WHEEL_THRESHOLD,
+          Math.min(WHEEL_THRESHOLD, wheelAccumulator.current)
+        );
       }
     };
 
     const onKeyDown = (e: KeyboardEvent) => {
-      if (reduceMotion) return;
       const key = e.key;
       const target = e.target as HTMLElement;
       const isInteractive = target.closest(
@@ -114,23 +127,31 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
       else if (delta < -TOUCH_THRESHOLD) goPrev();
     };
 
-    window.addEventListener("wheel", onWheel, { passive: false });
-    window.addEventListener("keydown", onKeyDown);
-    window.addEventListener("touchstart", onTouchStart, { passive: true });
-    window.addEventListener("touchend", onTouchEnd, { passive: true });
+    const opts = { passive: false as const, capture: true };
+    document.addEventListener("wheel", onWheel, opts);
+    document.addEventListener("keydown", onKeyDown, { capture: true });
+    document.addEventListener("touchstart", onTouchStart, { passive: true });
+    document.addEventListener("touchend", onTouchEnd, { passive: true });
 
     return () => {
-      window.removeEventListener("wheel", onWheel);
-      window.removeEventListener("keydown", onKeyDown);
-      window.removeEventListener("touchstart", onTouchStart);
-      window.removeEventListener("touchend", onTouchEnd);
+      document.removeEventListener("wheel", onWheel, opts);
+      document.removeEventListener("keydown", onKeyDown, { capture: true });
+      document.removeEventListener("touchstart", onTouchStart);
+      document.removeEventListener("touchend", onTouchEnd);
     };
   }, [goNext, goPrev, reduceMotion]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (reduceMotion) return;
+    document.documentElement.classList.add(BODY_CLASS);
     document.body.classList.add(BODY_CLASS);
-    return () => document.body.classList.remove(BODY_CLASS);
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return () => {
+      document.documentElement.classList.remove(BODY_CLASS);
+      document.body.classList.remove(BODY_CLASS);
+    };
   }, [reduceMotion]);
 
   if (reduceMotion) {
@@ -140,7 +161,7 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
   const displayIndex = transitionToIndex !== null ? transitionToIndex : activeIndex;
 
   return (
-    <div className="landing-fullpage overflow-hidden h-screen w-full">
+    <div className="landing-fullpage">
       <div
         className="landing-fullpage-strip flex flex-col w-full"
         style={{
