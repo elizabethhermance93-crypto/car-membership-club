@@ -1,16 +1,20 @@
 "use client";
 
 import Image from "next/image";
-import { Autoplay, Navigation, Pagination } from "swiper/modules";
+import { motion } from "framer-motion";
+import { Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import { siteContent } from "@/content/siteContent";
 import { Container } from "@/components/ui/Container";
 import { SectionReveal } from "@/components/ui/SectionReveal";
+import { cardHover, hoverTransition, slideTransition } from "@/lib/motion";
 
 type VehicleCarouselProps = {
   showHeading?: boolean;
 };
+
+const SWIPER_SPEED_MS = slideTransition.duration * 1000;
 
 export function VehicleCarousel({ showHeading = true }: VehicleCarouselProps) {
   return (
@@ -32,21 +36,25 @@ export function VehicleCarousel({ showHeading = true }: VehicleCarouselProps) {
         <SectionReveal delay={0.08}>
           <div className="mt-10 overflow-hidden rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
             <Swiper
-              modules={[Navigation, Pagination, Autoplay]}
+              modules={[Navigation, Pagination]}
               navigation
               pagination={{ clickable: true }}
-              autoplay={{ delay: 3500, disableOnInteraction: false }}
+              speed={SWIPER_SPEED_MS}
               spaceBetween={16}
               breakpoints={{
-                0: { slidesPerView: 1.05 },
-                768: { slidesPerView: 2.1 },
-                1200: { slidesPerView: 3.1 },
+                0: { slidesPerView: 1 },
+                768: { slidesPerView: 2 },
+                1200: { slidesPerView: 3 },
               }}
               className="vehicle-swiper"
             >
               {siteContent.vehicles.map((vehicle) => (
                 <SwiperSlide key={vehicle.id}>
-                  <article className="h-full rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <motion.article
+                    className="h-full rounded-2xl border border-slate-200 bg-slate-50 p-4 transition-[box-shadow,border-color] duration-[180ms] ease-out hover:border-slate-300 hover:shadow-lg"
+                    whileHover={cardHover}
+                    transition={hoverTransition}
+                  >
                     <Image
                       src={vehicle.image}
                       alt={`${vehicle.name} placeholder`}
@@ -61,7 +69,7 @@ export function VehicleCarousel({ showHeading = true }: VehicleCarouselProps) {
                       {vehicle.name}
                     </h3>
                     <p className="mt-2 text-sm leading-7 text-slate-600">{vehicle.blurb}</p>
-                  </article>
+                  </motion.article>
                 </SwiperSlide>
               ))}
             </Swiper>

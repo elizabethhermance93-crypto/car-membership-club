@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+  <!-- Favicon = logo mark only (rounded square + triangle), transparent background -->
+  <rect x="2" y="2" width="28" height="28" rx="6" fill="#0f172a"/>
+  <path d="M8 24L14 12L20 24H8Z" fill="white"/>
+</svg>

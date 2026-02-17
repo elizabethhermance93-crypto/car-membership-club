@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-label="Video thumbnail placeholder">
+  <defs>
+    <linearGradient id="vtg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1c1917"/>
+      <stop offset="100%" stop-color="#292524"/>
+    </linearGradient>
+  </defs>
+  <rect width="960" height="540" fill="url(#vtg)"/>
+  <circle cx="480" cy="270" r="64" fill="rgba(255,255,255,0.9)"/>
+  <path d="M460 240v60l44-30z" fill="#0c0a09"/>
+  <text x="480" y="400" fill="rgba(255,255,255,0.6)" font-size="24" font-family="system-ui, sans-serif" text-anchor="middle">Video thumbnail</text>
+</svg>

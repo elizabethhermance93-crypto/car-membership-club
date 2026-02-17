@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 
-import { CTASection } from "@/components/sections/CTASection";
+import { LandingScrollBehavior } from "@/components/landing/LandingScrollBehavior";
+import { HeroBrandSection } from "@/components/sections/HeroBrandSection";
 import { FAQAccordion } from "@/components/sections/FAQAccordion";
-import { Hero } from "@/components/sections/Hero";
 import { PricingCards } from "@/components/sections/PricingCards";
+import { CarSubscriptionSection } from "@/components/sections/CarSubscriptionSection";
+import { ProblemsSection } from "@/components/sections/ProblemsSection";
+import { SolutionSection } from "@/components/sections/SolutionSection";
 import { Steps } from "@/components/sections/Steps";
 import { Testimonials } from "@/components/sections/Testimonials";
-import { VehicleCarousel } from "@/components/sections/VehicleCarousel";
 
 export const metadata: Metadata = {
   title: "Home",
@@ -16,14 +18,15 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   return (
-    <>
-      <Hero />
+    <LandingScrollBehavior>
+      <HeroBrandSection />
+      <ProblemsSection />
+      <SolutionSection />
       <Steps />
       <PricingCards />
-      <VehicleCarousel />
       <Testimonials />
       <FAQAccordion />
-      <CTASection />
-    </>
+      <CarSubscriptionSection />
+    </LandingScrollBehavior>
   );
 }

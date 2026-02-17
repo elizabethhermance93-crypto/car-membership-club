@@ -1,4 +1,7 @@
 @import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
 @import "swiper/css";
 @import "swiper/css/navigation";
 @import "swiper/css/pagination";
@@ -24,6 +27,74 @@ body {
   scroll-margin-top: 6rem;
 }
 
+/* Landing page: fullpage one-section-per-scroll (no native scroll) */
+body.landing-scroll-snap {
+  overflow: hidden;
+  height: 100%;
+}
+
+/* Fullpage container + strip */
+.landing-fullpage {
+  position: relative;
+  touch-action: pan-y;
+}
+.landing-fullpage-strip {
+  will-change: transform;
+}
+
+/* Section enter/exit animation (~600ms, same up/down) */
+@keyframes landing-section-enter {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.985);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+@keyframes landing-section-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-24px) scale(0.985);
+    filter: blur(6px);
+  }
+}
+.landing-section-content.is-entering {
+  animation: landing-section-enter 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.landing-section-content.is-exiting {
+  animation: landing-section-exit 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.landing-section-content.is-active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .landing-section-content.is-entering,
+  .landing-section-content.is-exiting {
+    animation: none;
+  }
+  .landing-section-content.is-entering {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: none;
+  }
+  .landing-section-content.is-exiting {
+    opacity: 0;
+    transform: translateY(-24px) scale(0.985);
+    filter: none;
+  }
+}
+
 a {
   text-underline-offset: 3px;
 }
@@ -31,8 +102,133 @@ a {
 .vehicle-swiper .swiper-button-next,
 .vehicle-swiper .swiper-button-prev {
   color: #0f172a;
+  opacity: 0.9;
+  transition: opacity 0.18s ease-out, transform 0.18s ease-out;
+}
+.vehicle-swiper .swiper-button-next:hover,
+.vehicle-swiper .swiper-button-prev:hover {
+  opacity: 1;
+  transform: scale(1.05);
 }
 
 .vehicle-swiper .swiper-pagination-bullet-active {
   background: #0284c7;
+}
+
+/* Testimonials carousel: smooth slide (500ms ease-out) */
+.testimonials-swiper {
+  --swiper-wrapper-transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+.testimonials-swiper .swiper-wrapper {
+  transition-duration: 500ms;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+.testimonials-swiper .swiper-pagination-bullet {
+  background: rgba(255, 255, 255, 0.4);
+}
+.testimonials-swiper .swiper-pagination-bullet-active {
+  background: #fbbf24;
+}
+
+.problems-swiper .swiper-button-next,
+.problems-swiper .swiper-button-prev {
+  color: #0f172a;
+  opacity: 0.9;
+  transition: opacity 0.18s ease-out, transform 0.18s ease-out;
+}
+.problems-swiper .swiper-button-next:hover,
+.problems-swiper .swiper-button-prev:hover {
+  opacity: 1;
+  transform: scale(1.05);
+}
+.dark .problems-swiper .swiper-button-next,
+.dark .problems-swiper .swiper-button-prev {
+  color: #fbbf24;
+}
+.dark .problems-swiper .swiper-button-next:hover,
+.dark .problems-swiper .swiper-button-prev:hover {
+  color: #fcd34d;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hero: crossfade animations (200ms ease-out) so transition always runs */
+@keyframes hero-bg-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes hero-bg-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes hero-car-out {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(6px) scale(0.99); }
+}
+@keyframes hero-car-in {
+  from { opacity: 0; transform: translateY(-6px) scale(1.01); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.hero-bg-layer-out {
+  animation: hero-bg-out 0.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.hero-bg-layer-in {
+  animation: hero-bg-in 0.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.hero-car-layer-out {
+  animation: hero-car-out 0.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.hero-car-layer-in {
+  animation: hero-car-in 0.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-bg-layer-out,
+  .hero-bg-layer-in,
+  .hero-car-layer-out,
+  .hero-car-layer-in {
+    animation-duration: 0s;
+  }
+  .hero-bg-layer-out { opacity: 0; }
+  .hero-bg-layer-in { opacity: 1; }
+  .hero-car-layer-out { opacity: 0; transform: translateY(6px) scale(0.99); }
+  .hero-car-layer-in { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Hero: stable dark overlay (above images, below text) */
+.hero-overlay {
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0) 45%),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.2) 55%, rgba(0, 0, 0, 0.1) 100%);
+}
+
+/* Hero: logo row — inactive muted, hover brighten, active full color */
+.hero-logo-btn {
+  transition: opacity 0.15s ease, filter 0.15s ease, transform 0.15s ease;
+  filter: grayscale(1) brightness(1.8);
+  opacity: 0.55;
+}
+.hero-logo-btn:hover {
+  opacity: 0.85;
+  transform: scale(1.05);
+}
+.hero-logo-btn[data-active="true"] {
+  filter: none;
+  opacity: 1;
+  transform: none;
+}
+.hero-logo-btn[data-active="true"]:hover {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-logo-btn:hover,
+  .hero-logo-btn[data-active="true"]:hover {
+    transform: none;
+  }
 }
