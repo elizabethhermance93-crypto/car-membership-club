@@ -14,7 +14,8 @@ import {
 import { siteContent } from "@/content/siteContent";
 import { useTheme } from "@/components/providers/ThemeProvider";
 
-const socialIconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+type SocialIconProps = { className?: string; strokeWidth?: number };
+const socialIconMap: Record<string, React.ComponentType<SocialIconProps>> = {
   Instagram,
   Twitter,
   Google: Globe,
