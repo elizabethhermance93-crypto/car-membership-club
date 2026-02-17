@@ -201,6 +201,12 @@ a {
   color: transparent;
 }
 
+/* Hero: crossfade layers — smooth ease-in-out so it feels like a fade, not a cut */
+.hero-fade-layer {
+  transition-property: opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 /* Hero: logo row — grayscale inactive, active scale-125, 100ms transition (reference) */
 .hero-logo-btn {
   transition: filter 0.1s ease, transform 0.1s ease, opacity 0.1s ease;

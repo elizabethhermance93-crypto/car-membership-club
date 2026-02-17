@@ -38,13 +38,13 @@ export function PricingCards({ showHeading = true }: PricingCardsProps) {
           </div>
         )}
 
-        <div className="no-scrollbar mt-10 flex gap-4 overflow-x-auto pb-4 scroll-smooth lg:mt-16 lg:grid lg:grid-cols-4 lg:gap-4 lg:overflow-visible lg:pb-0 [scroll-snap-type:x_mandatory]">
+        <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:mt-16 lg:grid-cols-4 lg:gap-4">
           {plans.map((plan, index) => {
             const gradient = plan.gradient ?? "blue";
             return (
               <motion.article
                 key={plan.name}
-                className={`flex min-w-[240px] shrink-0 flex-col overflow-hidden rounded-xl bg-gradient-to-br shadow-lg [scroll-snap-align:center] sm:min-w-[260px] lg:min-w-0 ${GRADIENTS[gradient]} p-4 text-white sm:p-5 lg:p-4`}
+                className={`flex flex-col overflow-hidden rounded-xl bg-gradient-to-br shadow-lg ${GRADIENTS[gradient]} p-4 text-white sm:p-5 lg:p-4`}
                 initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.2 }}

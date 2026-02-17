@@ -10,7 +10,7 @@ import { Container } from "@/components/ui/Container";
 import { ctaHover, hoverTransition, prefersReducedMotion } from "@/lib/motion";
 
 const AUTOPLAY_DELAY_MS = 5000;
-const FADE_DURATION_MS = 350;
+const FADE_DURATION_MS = 900;
 const FALLBACK_BG = "/hero/bg-placeholder.svg";
 const FALLBACK_CAR = "/hero/car-placeholder.svg";
 
@@ -31,6 +31,10 @@ export function Hero() {
   const [reduceMotion, setReduceMotion] = useState(false);
   const [failedUrls, setFailedUrls] = useState<Set<string>>(() => new Set());
   const autoplayRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const reduceMotionRef = useRef(false);
+  const countRef = useRef(count);
+  countRef.current = count;
+  reduceMotionRef.current = reduceMotion;
 
   const safeIndex = count > 0 ? Math.min(activeIndex, count - 1) : 0;
   const activeBanner = count > 0 ? heroBanners[safeIndex] : null;
@@ -64,17 +68,17 @@ export function Hero() {
   );
 
   useEffect(() => {
-    if (reduceMotion || count <= 1) return;
-    autoplayRef.current = setInterval(() => {
-      setActiveIndex((i) => (i + 1) % count);
+    if (count <= 1) return;
+    const id = setInterval(() => {
+      if (reduceMotionRef.current) return;
+      setActiveIndex((i) => (i + 1) % countRef.current);
     }, AUTOPLAY_DELAY_MS);
+    autoplayRef.current = id;
     return () => {
-      if (autoplayRef.current) {
-        clearInterval(autoplayRef.current);
-        autoplayRef.current = null;
-      }
+      clearInterval(id);
+      autoplayRef.current = null;
     };
-  }, [count, reduceMotion]);
+  }, [count]);
 
   if (!hero || !heroBanners || count === 0) {
     return (
@@ -88,16 +92,18 @@ export function Hero() {
     <section
       className="relative flex min-h-screen w-full flex-col justify-center overflow-hidden bg-gradient-to-br from-stone-900 pt-20 pb-10 snap-start lg:items-center lg:pb-0"
       aria-label="Hero"
+      data-hero-fade-ms={reduceMotion ? 0 : FADE_DURATION_MS}
     >
-      {/* Background layers — opacity transition for smooth fade */}
+      {/* Background layers — opacity transition (no separate script; React state + CSS .hero-fade-layer) */}
       <div className="absolute inset-0 z-0">
         {heroBanners.map((banner, index) => (
           <div
             key={banner.id}
-            className="absolute inset-0 transition-opacity ease-out"
+            className="hero-fade-layer absolute inset-0 isolate"
             style={{
               opacity: index === safeIndex ? 1 : 0,
               transitionDuration: reduceMotion ? "0ms" : `${FADE_DURATION_MS}ms`,
+              transform: "translateZ(0)",
             }}
           >
             <Image
@@ -178,10 +184,11 @@ export function Hero() {
                 {heroBanners.map((banner, index) => (
                   <div
                     key={banner.id}
-                    className="absolute bottom-0 left-1/2 flex w-full justify-center transition-opacity ease-out lg:left-0 lg:right-0"
+                    className="hero-fade-layer absolute bottom-0 left-1/2 flex w-full justify-center lg:left-0 lg:right-0"
                     style={{
                       opacity: index === safeIndex ? 1 : 0,
                       transitionDuration: reduceMotion ? "0ms" : `${FADE_DURATION_MS}ms`,
+                      transform: "translateZ(0)",
                     }}
                   >
                     <div className="relative h-[40vh] w-full max-w-[90vw] lg:max-w-none">
