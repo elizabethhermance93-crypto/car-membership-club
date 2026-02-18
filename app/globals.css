@@ -106,6 +106,21 @@ body.landing-scroll-snap main {
   transform: translateY(0) scale(1);
   filter: blur(0);
 }
+
+/* Section content: full width, no horizontal overflow at any resolution */
+.landing-section-content {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+/* Last section (footer): allow vertical scroll if content is taller than viewport */
+.landing-fullpage-strip .landing-section:last-child .landing-section-content {
+  min-height: 100vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
 @media (prefers-reduced-motion: reduce) {
   .landing-section-content.is-entering,
   .landing-section-content.is-exiting {

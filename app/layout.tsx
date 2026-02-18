@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Manrope } from "next/font/google";
 
 import "./globals.css";
-import { SiteFooter } from "@/components/layout/SiteFooter";
+import { FooterWhenNotLanding } from "@/components/layout/FooterWhenNotLanding";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { AppSplashScreen } from "@/components/ui/AppSplashScreen";
@@ -74,7 +74,7 @@ export default function RootLayout({
           </a>
           <SiteHeader />
           <main id="main-content" className="scroll-mt-[72px]">{children}</main>
-          <SiteFooter />
+          <FooterWhenNotLanding />
           <ScrollToTopButton />
         </ThemeProvider>
       </body>

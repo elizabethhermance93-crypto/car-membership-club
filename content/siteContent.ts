@@ -663,7 +663,7 @@ export const siteContent = {
     ],
     locations: {
       title: "Locations",
-      items: ["Dallas, TX", "Garland, TX", "Richardson, TX", "Irving, TX", "Woburn, MA"],
+      items: ["Zipsters, LLC.", "1501 Oreilly Ct.", "Austin, TX 78734"],
       moreLabel: "more…",
       moreHref: "/locations",
     } satisfies FooterLocations,
@@ -674,9 +674,9 @@ export const siteContent = {
       { label: "Newsroom", href: "/newsroom" },
     ],
     contact: {
-      phone: "+1 (888) 781-1356",
-      email: "info@example.com",
-      appointmentLabel: "Appointment",
+      phone: "512-987-9576",
+      email: "jerry@refreshthelook.com",
+      appointmentLabel: "Jerry Small (CEO)",
       appointmentHref: "/contact",
     },
     darkMode: {
@@ -700,6 +700,6 @@ export const siteContent = {
       { label: "Privacy Policy", href: "/privacy-policy" },
       { label: "Sitemap", href: "/sitemap.xml" },
     ],
-    copyright: "©2025 Refresh The Look USA",
+    copyright: "©2026 Zipsters, LLC.",
   },
 };

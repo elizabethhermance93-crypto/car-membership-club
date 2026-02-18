@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { LandingScrollBehavior } from "@/components/landing/LandingScrollBehavior";
+import { SiteFooter } from "@/components/layout/SiteFooter";
 import { HeroBrandSection } from "@/components/sections/HeroBrandSection";
 import { FAQAccordion } from "@/components/sections/FAQAccordion";
 import { PricingCards } from "@/components/sections/PricingCards";
@@ -27,6 +28,7 @@ export default function HomePage() {
       <Testimonials />
       <FAQAccordion />
       <CarSubscriptionSection />
+      <SiteFooter />
     </LandingScrollBehavior>
   );
 }
