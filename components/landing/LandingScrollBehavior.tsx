@@ -124,7 +124,7 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
     if (reduceMotion || isMobile) return;
 
     const onWheel = (e: WheelEvent) => {
-      if (activeIndexRef.current >= sectionCount - 2) return; /* no scroll behavior on Car Membership or footer */
+      if (activeIndexRef.current === sectionCount - 1) return; /* no scroll behavior on footer only */
       e.preventDefault();
       e.stopPropagation();
       wheelAccumulator.current += e.deltaY;
@@ -143,7 +143,7 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
     };
 
     const onKeyDown = (e: KeyboardEvent) => {
-      if (activeIndexRef.current >= sectionCount - 2) return; /* no scroll behavior on Car Membership or footer */
+      if (activeIndexRef.current === sectionCount - 1) return; /* no scroll behavior on footer only */
       const key = e.key;
       const target = e.target as HTMLElement;
       const isInteractive = target.closest(
@@ -166,7 +166,7 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
     };
 
     const onTouchEnd = (e: TouchEvent) => {
-      if (activeIndexRef.current >= sectionCount - 2) return; /* no scroll behavior on Car Membership or footer */
+      if (activeIndexRef.current === sectionCount - 1) return; /* no scroll behavior on footer only */
       if (e.changedTouches.length === 0) return;
       const delta = touchStartY.current - e.changedTouches[0].clientY;
       if (delta > TOUCH_THRESHOLD) goNext();
