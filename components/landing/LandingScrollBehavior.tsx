@@ -251,13 +251,20 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
       ? `calc(${sectionCount - 1} * 100vh + ${lastSectionHeightPx}px)`
       : `${sectionCount * 100}vh`;
 
+  /* When on last section: show last 100vh of strip so we see part of previous section + full footer, no gap below */
+  const isLastSectionActive = displayIndex === sectionCount - 1;
+  const transform =
+    isLastSectionActive && lastSectionHeightPx > 0
+      ? `translateY(calc(-${sectionCount - 2} * 100vh - ${lastSectionHeightPx}px + 100vh))`
+      : `translateY(-${displayIndex * 100}vh)`;
+
   return (
     <div className="landing-fullpage">
       <div
         className="landing-fullpage-strip flex flex-col w-full"
         style={{
           height: stripHeight,
-          transform: `translateY(-${displayIndex * 100}vh)`,
+          transform,
           transition: `transform ${SECTION_TRANSITION_MS}ms ${SECTION_EASE}`,
         }}
       >

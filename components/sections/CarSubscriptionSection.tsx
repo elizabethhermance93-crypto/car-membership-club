@@ -13,7 +13,7 @@ export function CarSubscriptionSection() {
   const { carSubscriptionSection, pricingSection } = siteContent;
 
   return (
-    <section className="relative overflow-hidden bg-stone-100 py-16 lg:py-24 transition-colors duration-300 dark:bg-stone-950">
+    <section className="relative overflow-hidden bg-stone-100 py-10 md:py-12 lg:py-14 transition-colors duration-300 dark:bg-stone-950">
       <PrismBackground />
       <Container className="relative">
         <div className="mx-auto max-w-4xl text-center">
@@ -33,17 +33,18 @@ export function CarSubscriptionSection() {
           </p>
         </div>
 
-        <div className="mx-auto mt-12 max-w-4xl space-y-6 lg:mt-16">
+        {/* Two cards side-by-side from tablet so both fit in one viewport */}
+        <div className="mx-auto mt-8 grid max-w-5xl grid-cols-1 gap-6 md:mt-10 md:grid-cols-2 md:gap-6 lg:mt-12 lg:gap-8">
           {carSubscriptionSection.cards.map((card, index) => (
             <motion.article
               key={card.id}
-              className="rounded-xl border border-stone-300 bg-white/95 p-6 shadow-xl shadow-stone-900/10 backdrop-blur-sm dark:border-stone-600/50 dark:bg-stone-800/90 dark:shadow-black/30"
+              className="rounded-xl border border-stone-300 bg-white/95 p-5 shadow-xl shadow-stone-900/10 backdrop-blur-sm dark:border-stone-600/50 dark:bg-stone-800/90 dark:shadow-black/30 md:p-5 lg:p-6"
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
               transition={{ duration: 0.4, delay: index * STAGGER }}
             >
-              <h3 className="text-xl font-bold text-stone-900 md:text-2xl dark:text-white">
+              <h3 className="text-lg font-bold text-stone-900 md:text-xl lg:text-2xl dark:text-white">
                 {card.title}
                 {card.highlightVariant === "white" ? (
                   <span className="font-bold text-stone-900 dark:text-white">
@@ -56,11 +57,11 @@ export function CarSubscriptionSection() {
                 )}
                 {card.titleSuffix}
               </h3>
-              <div className="mt-4 space-y-4">
+              <div className="mt-3 space-y-3 md:mt-4 md:space-y-3 lg:space-y-4">
                 {card.paragraphs.map((para, i) => (
                   <p
                     key={i}
-                    className="text-sm leading-relaxed text-stone-600 md:text-base dark:text-white/90"
+                    className="text-sm leading-relaxed text-stone-600 md:text-sm lg:text-base dark:text-white/90"
                   >
                     {para}
                   </p>
@@ -70,7 +71,7 @@ export function CarSubscriptionSection() {
           ))}
         </div>
 
-        <div className="mt-10 flex justify-center lg:mt-12">
+        <div className="mt-8 flex justify-center md:mt-8 lg:mt-10">
           <Link
             href={pricingSection.seeFullComparison.href}
             className="inline-flex items-center justify-center rounded-lg bg-yellow-500 px-8 py-3.5 text-base font-bold text-white shadow-lg shadow-yellow-500/25 transition-all duration-200 hover:bg-yellow-400 hover:shadow-xl hover:shadow-yellow-500/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900"
