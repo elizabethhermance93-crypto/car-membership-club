@@ -124,7 +124,7 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
     if (reduceMotion || isMobile) return;
 
     const onWheel = (e: WheelEvent) => {
-      /* Car Membership & footer: let scroll work normally (don't intercept) */
+      /* Footer only: don't intercept so nothing happens. Car Membership: don't intercept so native scroll works */
       if (activeIndexRef.current >= sectionCount - 2) return;
       e.preventDefault();
       e.stopPropagation();

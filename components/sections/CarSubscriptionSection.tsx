@@ -33,8 +33,8 @@ export function CarSubscriptionSection() {
           </p>
         </div>
 
-        {/* Two cards side-by-side from tablet so both fit in one viewport */}
-        <div className="mx-auto mt-8 grid max-w-5xl grid-cols-1 gap-6 md:mt-10 md:grid-cols-2 md:gap-6 lg:mt-12 lg:gap-8">
+        {/* Two cards: one per line (native scroll within section) */}
+        <div className="mx-auto mt-8 grid max-w-4xl grid-cols-1 gap-6 md:mt-10 lg:mt-12">
           {carSubscriptionSection.cards.map((card, index) => (
             <motion.article
               key={card.id}
