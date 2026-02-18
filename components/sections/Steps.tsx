@@ -7,7 +7,7 @@ import { siteContent } from "@/content/siteContent";
 import { Container } from "@/components/ui/Container";
 import { PrismBackground } from "@/components/ui/PrismBackground";
 
-const CARD_HOVER = { duration: 0.25, ease: [0.25, 0.1, 0.25, 1] };
+const CARD_HOVER = { duration: 0.25, ease: "easeInOut" as const };
 const STAGGER = 0.08;
 
 type StepsProps = {
@@ -22,7 +22,7 @@ export function Steps({ showHeading = true }: StepsProps) {
       className="relative overflow-hidden bg-stone-100 py-16 lg:py-24 transition-colors duration-300 dark:bg-stone-900"
       id="how-it-works"
     >
-      <PrismBackground variant="dark" />
+      <PrismBackground />
       <Container className="relative">
         {showHeading && (
           <div className="mx-auto max-w-3xl text-center">
