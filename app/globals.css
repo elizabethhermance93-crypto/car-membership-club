@@ -107,15 +107,6 @@ body.landing-scroll-snap main {
   filter: blur(0);
 }
 
-/* Native-scroll sections (Car Membership + Footer): no scroll-related CSS or effects */
-.landing-fullpage-strip .landing-section[data-native-scroll="true"] .landing-section-content {
-  animation: none !important;
-  opacity: 1 !important;
-  transform: none !important;
-  filter: none !important;
-  will-change: auto !important;
-}
-
 /* Section content: full width, no horizontal overflow at any resolution */
 .landing-section-content {
   width: 100%;
