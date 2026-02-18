@@ -20,6 +20,7 @@ const SECTION_EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
 const MOBILE_BREAKPOINT_PX = 1024; /* lg */
 const LANDING_SECTION_CHANGE = "landing-section-change";
 const SCROLL_EDGE_EPSILON = 2;
+const NATIVE_SCROLL_SELECTOR = "[data-native-scroll=\"true\"]";
 
 /** Last two sections (Car Membership + Footer): native scroll region; indices sectionCount-2 and sectionCount-1 */
 function isInNativeScrollRange(index: number, count: number) {
@@ -28,10 +29,21 @@ function isInNativeScrollRange(index: number, count: number) {
 
 function getSectionContentEl(sectionIndex: number): HTMLElement | null {
   const section = document.querySelector(
-    `[data-section-index="${sectionIndex}"][data-native-scroll="true"]`
+    `[data-section-index="${sectionIndex}"]${NATIVE_SCROLL_SELECTOR}`
   );
   const content = section?.querySelector(".landing-section-content");
   return content instanceof HTMLElement ? content : null;
+}
+
+/** Detect native-scroll section from DOM (works even if activeIndex/sectionCount differ in production) */
+function getNativeSectionFromTarget(target: EventTarget | null): { content: HTMLElement; isFirstNative: boolean } | null {
+  const el = target instanceof Node ? (target as HTMLElement).closest?.(NATIVE_SCROLL_SELECTOR) : null;
+  if (!el || !(el instanceof HTMLElement)) return null;
+  const content = el.querySelector(".landing-section-content");
+  if (!(content instanceof HTMLElement)) return null;
+  const nextNative = el.nextElementSibling?.closest?.(NATIVE_SCROLL_SELECTOR);
+  const isFirstNative = !!nextNative;
+  return { content, isFirstNative };
 }
 
 function isContentAtBottom(el: HTMLElement) {
@@ -147,6 +159,27 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
 
     const onWheel = (e: WheelEvent) => {
       const idx = activeIndexRef.current;
+      const nativeFromTarget = getNativeSectionFromTarget(e.target);
+      if (nativeFromTarget) {
+        if (nativeFromTarget.isFirstNative) {
+          if (isContentAtBottom(nativeFromTarget.content) && e.deltaY > 0) {
+            e.preventDefault();
+            e.stopPropagation();
+            goNext();
+            return;
+          }
+          return;
+        }
+        if (!nativeFromTarget.isFirstNative) {
+          if (isContentAtTop(nativeFromTarget.content) && e.deltaY < 0) {
+            e.preventDefault();
+            e.stopPropagation();
+            goPrev();
+            return;
+          }
+          return;
+        }
+      }
       if (isInNativeScrollRange(idx, sectionCount)) {
         if (idx === sectionCount - 2) {
           const content = getSectionContentEl(sectionCount - 2);
@@ -234,6 +267,15 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
       if (e.changedTouches.length === 0) return;
       const idx = activeIndexRef.current;
       const delta = touchStartY.current - e.changedTouches[0].clientY;
+      const nativeFromTarget = getNativeSectionFromTarget(e.target);
+      if (nativeFromTarget) {
+        if (nativeFromTarget.isFirstNative && delta > TOUCH_THRESHOLD) {
+          if (isContentAtBottom(nativeFromTarget.content)) goNext();
+        } else if (!nativeFromTarget.isFirstNative && delta < -TOUCH_THRESHOLD) {
+          if (isContentAtTop(nativeFromTarget.content)) goPrev();
+        }
+        return;
+      }
       if (isInNativeScrollRange(idx, sectionCount)) {
         if (idx === sectionCount - 2 && delta > TOUCH_THRESHOLD) {
           const content = getSectionContentEl(sectionCount - 2);
@@ -348,9 +390,9 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
           const contentClass = [
             "landing-section-content min-h-screen w-full",
             isLast ? "landing-section-content-last" : "",
-            isNativeScrollSection ? "" : (isActive ? "is-active" : ""),
-            isNativeScrollSection ? "" : (isEntering ? "is-entering" : ""),
-            isNativeScrollSection ? "" : (isExiting ? "is-exiting" : ""),
+            isActive ? "is-active" : "",
+            isEntering ? "is-entering" : "",
+            isExiting ? "is-exiting" : "",
           ]
             .filter(Boolean)
             .join(" ");
