@@ -37,6 +37,7 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
   const touchStartY = useRef(0);
   const activeIndexRef = useRef(activeIndex);
   const transitionToIndexRef = useRef(transitionToIndex);
+  const transitionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   activeIndexRef.current = activeIndex;
   transitionToIndexRef.current = transitionToIndex;
@@ -57,10 +58,14 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
       setTransitionFromIndex(current);
       setTransitionToIndex(nextIndex);
 
-      setTimeout(() => {
+      if (transitionTimerRef.current) {
+        clearTimeout(transitionTimerRef.current);
+      }
+      transitionTimerRef.current = setTimeout(() => {
         setActiveIndex(nextIndex);
         setTransitionToIndex(null);
         setTransitionFromIndex(null);
+        transitionTimerRef.current = null;
       }, SECTION_TRANSITION_MS);
     },
     [sectionCount, reduceMotion]
@@ -140,6 +145,49 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
       document.removeEventListener("touchend", onTouchEnd);
     };
   }, [goNext, goPrev, reduceMotion]);
+
+  useEffect(() => {
+    return () => {
+      if (transitionTimerRef.current) {
+        clearTimeout(transitionTimerRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const onScrollTop = () => {
+      if (reduceMotion) {
+        setActiveIndex(0);
+        setTransitionToIndex(null);
+        setTransitionFromIndex(null);
+        return;
+      }
+
+      // Force top transition even if a previous wheel/touch lock is active.
+      lockUntil.current = 0;
+      const current = transitionToIndexRef.current ?? activeIndexRef.current;
+      if (current === 0) return;
+
+      if (transitionTimerRef.current) {
+        clearTimeout(transitionTimerRef.current);
+      }
+
+      setTransitionFromIndex(current);
+      setTransitionToIndex(0);
+      lockUntil.current = Date.now() + LOCK_MS;
+      transitionTimerRef.current = setTimeout(() => {
+        setActiveIndex(0);
+        setTransitionToIndex(null);
+        setTransitionFromIndex(null);
+        transitionTimerRef.current = null;
+      }, SECTION_TRANSITION_MS);
+    };
+
+    window.addEventListener("landing-scroll-to-top", onScrollTop);
+    return () => {
+      window.removeEventListener("landing-scroll-to-top", onScrollTop);
+    };
+  }, [goTo, reduceMotion]);
 
   useLayoutEffect(() => {
     if (reduceMotion) return;

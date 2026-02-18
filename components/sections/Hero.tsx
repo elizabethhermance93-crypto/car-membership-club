@@ -7,12 +7,13 @@ import { motion } from "framer-motion";
 
 import { siteContent } from "@/content/siteContent";
 import { Container } from "@/components/ui/Container";
-import { ctaHover, hoverTransition, prefersReducedMotion } from "@/lib/motion";
+import { ctaHover, hoverTransition } from "@/lib/motion";
 
 const AUTOPLAY_DELAY_MS = 5000;
 const FADE_DURATION_MS = 900;
 const FALLBACK_BG = "/hero/bg-placeholder.svg";
 const FALLBACK_CAR = "/hero/car-placeholder.svg";
+const HERO_READY_EVENT = "app-hero-ready";
 
 function getBannerSrc(
   banner: (typeof siteContent.heroBanners)[number],
@@ -31,16 +32,25 @@ export function Hero() {
   const [reduceMotion, setReduceMotion] = useState(false);
   const [failedUrls, setFailedUrls] = useState<Set<string>>(() => new Set());
   const autoplayRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const reduceMotionRef = useRef(false);
   const countRef = useRef(count);
   countRef.current = count;
-  reduceMotionRef.current = reduceMotion;
 
   const safeIndex = count > 0 ? Math.min(activeIndex, count - 1) : 0;
-  const activeBanner = count > 0 ? heroBanners[safeIndex] : null;
+  const fadeDurationMs = reduceMotion ? 450 : FADE_DURATION_MS;
 
   useEffect(() => {
-    setReduceMotion(prefersReducedMotion());
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onChange = () => setReduceMotion(media.matches);
+    onChange();
+    media.addEventListener("change", onChange);
+    return () => {
+      media.removeEventListener("change", onChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    // Notify splash that first section (hero) is now rendered.
+    window.dispatchEvent(new CustomEvent(HERO_READY_EVENT));
   }, []);
 
   const useFallback = useCallback((url: string) => {
@@ -70,7 +80,6 @@ export function Hero() {
   useEffect(() => {
     if (count <= 1) return;
     const id = setInterval(() => {
-      if (reduceMotionRef.current) return;
       setActiveIndex((i) => (i + 1) % countRef.current);
     }, AUTOPLAY_DELAY_MS);
     autoplayRef.current = id;
@@ -92,7 +101,7 @@ export function Hero() {
     <section
       className="relative flex min-h-screen w-full flex-col justify-center overflow-hidden bg-gradient-to-br from-stone-900 pt-20 pb-10 snap-start lg:items-center lg:pb-0"
       aria-label="Hero"
-      data-hero-fade-ms={reduceMotion ? 0 : FADE_DURATION_MS}
+      data-hero-fade-ms={fadeDurationMs}
     >
       {/* Background layers — opacity transition (no separate script; React state + CSS .hero-fade-layer) */}
       <div className="absolute inset-0 z-0">
@@ -102,7 +111,7 @@ export function Hero() {
             className="hero-fade-layer absolute inset-0 isolate"
             style={{
               opacity: index === safeIndex ? 1 : 0,
-              transitionDuration: reduceMotion ? "0ms" : `${FADE_DURATION_MS}ms`,
+              transitionDuration: `${fadeDurationMs}ms`,
               transform: "translateZ(0)",
             }}
           >
@@ -184,11 +193,11 @@ export function Hero() {
                 {heroBanners.map((banner, index) => (
                   <div
                     key={banner.id}
-                    className="hero-fade-layer absolute bottom-0 left-1/2 flex w-full justify-center lg:left-0 lg:right-0"
+                    className="hero-car-layer absolute bottom-0 left-1/2 flex w-full justify-center lg:left-0 lg:right-0"
                     style={{
                       opacity: index === safeIndex ? 1 : 0,
-                      transitionDuration: reduceMotion ? "0ms" : `${FADE_DURATION_MS}ms`,
-                      transform: "translateZ(0)",
+                      transitionDuration: `${fadeDurationMs}ms`,
+                      transform: `translateZ(0) scale(${index === safeIndex ? 1 : 0.96})`,
                     }}
                   >
                     <div className="relative h-[40vh] w-full max-w-[90vw] lg:max-w-none">
@@ -208,18 +217,28 @@ export function Hero() {
               </div>
               {/* Mobile car */}
               <div className="relative aspect-[16/10] w-full min-h-[180px] lg:hidden">
-                {activeBanner && (
-                  <Image
-                    src={getBannerSrc(activeBanner, failedUrls, "car")}
-                    alt={activeBanner.alt}
-                    fill
-                    priority={safeIndex === 0}
-                    className="object-contain object-bottom"
-                    sizes="100vw"
-                    unoptimized={activeBanner.carSrc.endsWith(".svg")}
-                    onError={() => useFallback(activeBanner.carSrc)}
-                  />
-                )}
+                {heroBanners.map((banner, index) => (
+                  <div
+                    key={banner.id}
+                    className="hero-car-layer absolute inset-0"
+                    style={{
+                      opacity: index === safeIndex ? 1 : 0,
+                      transitionDuration: `${fadeDurationMs}ms`,
+                      transform: `translateZ(0) scale(${index === safeIndex ? 1 : 0.96})`,
+                    }}
+                  >
+                    <Image
+                      src={getBannerSrc(banner, failedUrls, "car")}
+                      alt={banner.alt}
+                      fill
+                      priority={index === 0}
+                      className="object-contain object-bottom"
+                      sizes="100vw"
+                      unoptimized={banner.carSrc.endsWith(".svg")}
+                      onError={() => useFallback(banner.carSrc)}
+                    />
+                  </div>
+                ))}
               </div>
             </div>
 

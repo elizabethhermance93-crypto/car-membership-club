@@ -24,24 +24,6 @@ const socialIconMap: Record<string, React.ComponentType<SocialIconProps>> = {
   LinkedIn: Linkedin,
 };
 
-/** Apple logo (white) for App Store badge */
-function AppleLogoIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
-    </svg>
-  );
-}
-
-/** Google Play triangle icon (white) for badge */
-function GooglePlayIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.198l2.807 1.626a1 1 0 0 1 0 1.73l-2.808 1.626L15.206 12l2.492-2.491zM5.864 2.658L16.802 8.99l-2.302 2.302-8.636-8.635z" />
-    </svg>
-  );
-}
-
 export function SiteFooter() {
   const { footer, brand, navigation } = siteContent;
   const { theme, toggleTheme } = useTheme();
@@ -198,27 +180,33 @@ export function SiteFooter() {
               {appStoreBadges[0] && (
                 <a
                   href={appStoreBadges[0].href}
-                  className="inline-flex items-center gap-3 rounded-xl bg-black px-4 py-2.5 text-white transition-all duration-200 hover:opacity-90 hover:shadow-lg"
+                  className="inline-flex rounded-xl transition-all duration-200 hover:opacity-90 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-yellow-600"
                   aria-label="Download on the App Store"
                 >
-                  <AppleLogoIcon className="h-8 w-8 shrink-0" />
-                  <span className="flex flex-col items-start text-left">
-                    <span className="text-[10px] leading-tight">Download on the</span>
-                    <span className="text-sm font-semibold leading-tight">App Store</span>
-                  </span>
+                  <Image
+                    src="/images/download-app-store.png"
+                    alt="Download on the App Store"
+                    width={170}
+                    height={52}
+                    className="h-11 w-auto rounded-xl object-contain"
+                    unoptimized
+                  />
                 </a>
               )}
               {appStoreBadges[1] && (
                 <a
                   href={appStoreBadges[1].href}
-                  className="inline-flex items-center gap-3 rounded-xl bg-black px-4 py-2.5 text-white transition-all duration-200 hover:opacity-90 hover:shadow-lg"
+                  className="inline-flex rounded-xl transition-all duration-200 hover:opacity-90 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-yellow-600"
                   aria-label="GET IT ON Google Play"
                 >
-                  <GooglePlayIcon className="h-8 w-8 shrink-0" />
-                  <span className="flex flex-col items-start text-left">
-                    <span className="text-[10px] font-medium uppercase leading-tight">GET IT ON</span>
-                    <span className="text-sm font-semibold leading-tight">Google Play</span>
-                  </span>
+                  <Image
+                    src="/images/download-play-store.png"
+                    alt="GET IT ON Google Play"
+                    width={170}
+                    height={52}
+                    className="h-11 w-auto rounded-xl object-contain"
+                    unoptimized
+                  />
                 </a>
               )}
             </div>

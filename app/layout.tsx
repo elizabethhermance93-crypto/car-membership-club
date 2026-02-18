@@ -5,6 +5,8 @@ import "./globals.css";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { AppSplashScreen } from "@/components/ui/AppSplashScreen";
+import { ScrollToTopButton } from "@/components/ui/ScrollToTopButton";
 import { siteContent } from "@/content/siteContent";
 
 const manrope = Manrope({
@@ -63,6 +65,7 @@ export default function RootLayout({
         className={`${manrope.variable} bg-stone-100 text-stone-900 antialiased transition-colors duration-300 dark:bg-stone-950 dark:text-stone-100`}
       >
         <ThemeProvider>
+          <AppSplashScreen />
           <a
             href="#main-content"
             className="sr-only z-50 rounded-md bg-yellow-500 px-4 py-2 text-stone-900 focus:not-sr-only focus:absolute focus:left-4 focus:top-4"
@@ -72,6 +75,7 @@ export default function RootLayout({
           <SiteHeader />
           <main id="main-content" className="scroll-mt-[72px]">{children}</main>
           <SiteFooter />
+          <ScrollToTopButton />
         </ThemeProvider>
       </body>
     </html>
