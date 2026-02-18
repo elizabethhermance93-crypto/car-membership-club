@@ -19,6 +19,28 @@ const TOUCH_THRESHOLD = 50;
 const SECTION_EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
 const MOBILE_BREAKPOINT_PX = 1024; /* lg */
 const LANDING_SECTION_CHANGE = "landing-section-change";
+const SCROLL_EDGE_EPSILON = 2;
+
+/** Last two sections (Car Membership + Footer): native scroll region; indices sectionCount-2 and sectionCount-1 */
+function isInNativeScrollRange(index: number, count: number) {
+  return count >= 2 && index >= count - 2;
+}
+
+function getSectionContentEl(sectionIndex: number): HTMLElement | null {
+  const section = document.querySelector(
+    `[data-section-index="${sectionIndex}"][data-native-scroll="true"]`
+  );
+  const content = section?.querySelector(".landing-section-content");
+  return content instanceof HTMLElement ? content : null;
+}
+
+function isContentAtBottom(el: HTMLElement) {
+  return el.scrollHeight - el.scrollTop <= el.clientHeight + SCROLL_EDGE_EPSILON;
+}
+
+function isContentAtTop(el: HTMLElement) {
+  return el.scrollTop <= SCROLL_EDGE_EPSILON;
+}
 
 type LandingScrollBehaviorProps = { children: ReactNode };
 
@@ -124,6 +146,29 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
     if (reduceMotion || isMobile) return;
 
     const onWheel = (e: WheelEvent) => {
+      const idx = activeIndexRef.current;
+      if (isInNativeScrollRange(idx, sectionCount)) {
+        if (idx === sectionCount - 2) {
+          const content = getSectionContentEl(sectionCount - 2);
+          if (content && isContentAtBottom(content) && e.deltaY > 0) {
+            e.preventDefault();
+            e.stopPropagation();
+            goNext();
+            return;
+          }
+          return;
+        }
+        if (idx === sectionCount - 1) {
+          const content = getSectionContentEl(sectionCount - 1);
+          if (content && isContentAtTop(content) && e.deltaY < 0) {
+            e.preventDefault();
+            e.stopPropagation();
+            goPrev();
+            return;
+          }
+          return;
+        }
+      }
       e.preventDefault();
       e.stopPropagation();
       wheelAccumulator.current += e.deltaY;
@@ -142,6 +187,28 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
     };
 
     const onKeyDown = (e: KeyboardEvent) => {
+      const idx = activeIndexRef.current;
+      if (isInNativeScrollRange(idx, sectionCount)) {
+        if (idx === sectionCount - 2) {
+          const content = getSectionContentEl(sectionCount - 2);
+          if (content && isContentAtBottom(content) && (e.key === "ArrowDown" || e.key === "PageDown" || (e.key === " " && !e.repeat))) {
+            const target = e.target as HTMLElement;
+            if (!target.closest("button, a, input, textarea, [contenteditable=true]")) {
+              e.preventDefault();
+              goNext();
+            }
+          }
+          return;
+        }
+        if (idx === sectionCount - 1) {
+          const content = getSectionContentEl(sectionCount - 1);
+          if (content && isContentAtTop(content) && (e.key === "ArrowUp" || e.key === "PageUp")) {
+            e.preventDefault();
+            goPrev();
+          }
+          return;
+        }
+      }
       const key = e.key;
       const target = e.target as HTMLElement;
       const isInteractive = target.closest(
@@ -165,7 +232,18 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
 
     const onTouchEnd = (e: TouchEvent) => {
       if (e.changedTouches.length === 0) return;
+      const idx = activeIndexRef.current;
       const delta = touchStartY.current - e.changedTouches[0].clientY;
+      if (isInNativeScrollRange(idx, sectionCount)) {
+        if (idx === sectionCount - 2 && delta > TOUCH_THRESHOLD) {
+          const content = getSectionContentEl(sectionCount - 2);
+          if (content && isContentAtBottom(content)) goNext();
+        } else if (idx === sectionCount - 1 && delta < -TOUCH_THRESHOLD) {
+          const content = getSectionContentEl(sectionCount - 1);
+          if (content && isContentAtTop(content)) goPrev();
+        }
+        return;
+      }
       if (delta > TOUCH_THRESHOLD) goNext();
       else if (delta < -TOUCH_THRESHOLD) goPrev();
     };
@@ -263,6 +341,7 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
       >
         {childArray.map((child, index) => {
           const isLast = index === sectionCount - 1;
+          const isNativeScrollSection = index >= sectionCount - 2;
           const isEntering = transitionToIndex === index;
           const isExiting = transitionFromIndex === index;
           const isActive = activeIndex === index && !isTransitioning;
@@ -283,6 +362,7 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
               className="landing-section min-h-screen min-w-full shrink-0"
               style={{ height: isLast ? "auto" : "100vh" }}
               data-section-index={index}
+              {...(isNativeScrollSection ? { "data-native-scroll": "true" } : {})}
             >
               <div className={contentClass}>{child}</div>
             </section>
