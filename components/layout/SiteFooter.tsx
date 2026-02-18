@@ -61,7 +61,16 @@ export function SiteFooter() {
 
           <div className="grid grid-cols-2 gap-x-10 gap-y-8">
             <div>
-              <p className="text-3xl font-bold tracking-tight">{brand.name}</p>
+              <Link href="/" className="inline-block">
+                <Image
+                  src={brand.logo}
+                  alt={brand.name}
+                  width={200}
+                  height={56}
+                  className="h-12 w-auto max-w-[200px] object-contain object-left"
+                  unoptimized
+                />
+              </Link>
               <ul className="mt-4 space-y-2">
                 {brandLinks.map((link) => (
                   <li key={link.href}>
@@ -266,7 +275,7 @@ export function SiteFooter() {
                 alt={brand.name}
                 width={280}
                 height={80}
-                className="h-14 w-auto object-contain object-left lg:h-16"
+                className="h-14 w-auto object-contain object-left lg:h-20"
                 unoptimized
               />
             </Link>

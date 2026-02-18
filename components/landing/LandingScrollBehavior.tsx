@@ -17,11 +17,15 @@ const LOCK_MS = 800;
 const WHEEL_THRESHOLD = 60;
 const TOUCH_THRESHOLD = 50;
 const SECTION_EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
+const MOBILE_BREAKPOINT_PX = 1024; /* lg */
+const LANDING_SECTION_CHANGE = "landing-section-change";
 
 type LandingScrollBehaviorProps = { children: ReactNode };
 
 export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) {
   const [reduceMotion, setReduceMotion] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [lastSectionHeightPx, setLastSectionHeightPx] = useState(0);
   const childArray = Children.toArray(children);
   const sectionCount = childArray.length;
 
@@ -38,6 +42,12 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
   const activeIndexRef = useRef(activeIndex);
   const transitionToIndexRef = useRef(transitionToIndex);
   const transitionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastSectionRef = useRef<HTMLElement | null>(null);
+  const [lastSectionMounted, setLastSectionMounted] = useState(false);
+  const setLastSectionRef = useCallback((el: HTMLElement | null) => {
+    lastSectionRef.current = el;
+    setLastSectionMounted(Boolean(el));
+  }, []);
 
   activeIndexRef.current = activeIndex;
   transitionToIndexRef.current = transitionToIndex;
@@ -83,7 +93,35 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
   }, []);
 
   useEffect(() => {
-    if (reduceMotion) return;
+    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT_PX - 1}px)`);
+    const onChange = () => setIsMobile(mql.matches);
+    onChange();
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
+
+  useEffect(() => {
+    if (reduceMotion || isMobile) return;
+    window.dispatchEvent(
+      new CustomEvent(LANDING_SECTION_CHANGE, { detail: { index: activeIndex } })
+    );
+  }, [activeIndex, reduceMotion, isMobile]);
+
+  useEffect(() => {
+    if (isMobile || reduceMotion || sectionCount === 0 || !lastSectionMounted) return;
+    const el = lastSectionRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) setLastSectionHeightPx(entry.contentRect.height);
+    });
+    ro.observe(el);
+    setLastSectionHeightPx(el.getBoundingClientRect().height);
+    return () => ro.disconnect();
+  }, [isMobile, reduceMotion, sectionCount, lastSectionMounted]);
+
+  useEffect(() => {
+    if (reduceMotion || isMobile) return;
 
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
@@ -144,7 +182,7 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
       document.removeEventListener("touchstart", onTouchStart);
       document.removeEventListener("touchend", onTouchEnd);
     };
-  }, [goNext, goPrev, reduceMotion]);
+  }, [goNext, goPrev, reduceMotion, isMobile]);
 
   useEffect(() => {
     return () => {
@@ -190,7 +228,7 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
   }, [goTo, reduceMotion]);
 
   useLayoutEffect(() => {
-    if (reduceMotion) return;
+    if (reduceMotion || isMobile) return;
     document.documentElement.classList.add(BODY_CLASS);
     document.body.classList.add(BODY_CLASS);
     window.scrollTo(0, 0);
@@ -200,30 +238,37 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
       document.documentElement.classList.remove(BODY_CLASS);
       document.body.classList.remove(BODY_CLASS);
     };
-  }, [reduceMotion]);
+  }, [reduceMotion, isMobile]);
 
-  if (reduceMotion) {
+  /* Mobile or reduced motion: normal scroll, no fullpage */
+  if (reduceMotion || isMobile) {
     return <>{children}</>;
   }
 
   const displayIndex = transitionToIndex !== null ? transitionToIndex : activeIndex;
+  const stripHeight =
+    lastSectionHeightPx > 0
+      ? `calc(${sectionCount - 1} * 100vh + ${lastSectionHeightPx}px)`
+      : `${sectionCount * 100}vh`;
 
   return (
     <div className="landing-fullpage">
       <div
         className="landing-fullpage-strip flex flex-col w-full"
         style={{
-          height: `${sectionCount * 100}vh`,
+          height: stripHeight,
           transform: `translateY(-${displayIndex * 100}vh)`,
           transition: `transform ${SECTION_TRANSITION_MS}ms ${SECTION_EASE}`,
         }}
       >
         {childArray.map((child, index) => {
+          const isLast = index === sectionCount - 1;
           const isEntering = transitionToIndex === index;
           const isExiting = transitionFromIndex === index;
           const isActive = activeIndex === index && !isTransitioning;
           const contentClass = [
             "landing-section-content min-h-screen w-full",
+            isLast ? "landing-section-content-last" : "",
             isActive ? "is-active" : "",
             isEntering ? "is-entering" : "",
             isExiting ? "is-exiting" : "",
@@ -234,8 +279,9 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
           return (
             <section
               key={index}
+              ref={isLast ? setLastSectionRef : undefined}
               className="landing-section min-h-screen min-w-full shrink-0"
-              style={{ height: "100vh" }}
+              style={{ height: isLast ? "auto" : "100vh" }}
               data-section-index={index}
             >
               <div className={contentClass}>{child}</div>

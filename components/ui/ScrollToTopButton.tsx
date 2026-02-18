@@ -14,15 +14,30 @@ export function ScrollToTopButton() {
 
   useEffect(() => {
     const handleScroll = () => {
+      const isLanding =
+        document.body.classList.contains("landing-scroll-snap");
+      if (isLanding) return; /* visibility controlled by landing-section-change */
       setVisible(window.scrollY > SHOW_THRESHOLD_PX);
+    };
+
+    const handleLandingSection = (e: CustomEvent<{ index: number }>) => {
+      setVisible((e.detail?.index ?? 0) > 0);
     };
 
     handleScroll();
 
     window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener(
+      "landing-section-change",
+      handleLandingSection as EventListener
+    );
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener(
+        "landing-section-change",
+        handleLandingSection as EventListener
+      );
     };
   }, []);
 

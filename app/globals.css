@@ -115,11 +115,23 @@ body.landing-scroll-snap main {
   box-sizing: border-box;
 }
 
-/* Last section (footer): allow vertical scroll if content is taller than viewport */
-.landing-fullpage-strip .landing-section:last-child .landing-section-content {
+/* Second-to-last section (Car Membership) and last section (footer): allow vertical scroll when content exceeds 100vh */
+.landing-fullpage-strip .landing-section:nth-last-child(1) .landing-section-content,
+.landing-fullpage-strip .landing-section:nth-last-child(2) .landing-section-content {
   min-height: 100vh;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+}
+
+/* Last section (footer): content height only, no extra 100vh; match footer gradient */
+.landing-fullpage-strip .landing-section:last-child .landing-section-content.landing-section-content-last {
+  min-height: auto;
+}
+.landing-fullpage-strip .landing-section:last-child .landing-section-content {
+  background: linear-gradient(to bottom, #eab308, #ca8a04);
+}
+.dark .landing-fullpage-strip .landing-section:last-child .landing-section-content {
+  background: linear-gradient(to bottom, #eab308, #ca8a04);
 }
 @media (prefers-reduced-motion: reduce) {
   .landing-section-content.is-entering,

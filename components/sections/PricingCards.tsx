@@ -24,27 +24,27 @@ export function PricingCards({ showHeading = true }: PricingCardsProps) {
   const { pricingSection, plans } = siteContent;
 
   return (
-    <section className="relative overflow-hidden bg-stone-100 py-16 lg:py-24 transition-colors duration-300 dark:bg-stone-900" id="pricing">
+    <section className="relative overflow-hidden bg-stone-100 py-5 md:py-16 lg:py-24 transition-colors duration-300 dark:bg-stone-900" id="pricing">
       <PrismBackground />
       <Container className="relative">
         {showHeading && (
           <div className="mx-auto max-w-3xl text-center">
-            <p className="text-sm font-bold uppercase tracking-wide text-yellow-600 md:text-base dark:text-yellow-500">
+            <p className="text-xs font-bold uppercase tracking-wide text-yellow-600 md:text-base dark:text-yellow-500">
               {pricingSection.preheadline}
             </p>
-            <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-stone-900 md:text-4xl lg:text-5xl dark:text-white">
+            <h2 className="mt-0.5 text-xl font-extrabold tracking-tight text-stone-900 md:mt-2 md:text-4xl lg:text-5xl dark:text-white">
               {pricingSection.headline}
             </h2>
           </div>
         )}
 
-        <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:mt-16 lg:grid-cols-4 lg:gap-4">
+        <div className="mt-3 grid grid-cols-1 gap-2 sm:mt-10 sm:grid-cols-2 sm:gap-4 lg:mt-16 lg:grid-cols-4 lg:gap-4">
           {plans.map((plan, index) => {
             const gradient = plan.gradient ?? "blue";
             return (
               <motion.article
                 key={plan.name}
-                className={`flex flex-col overflow-hidden rounded-xl bg-gradient-to-br shadow-lg ${GRADIENTS[gradient]} p-4 text-white sm:p-5 lg:p-4`}
+                className={`flex flex-col overflow-hidden rounded-lg bg-gradient-to-br shadow-lg ${GRADIENTS[gradient]} p-2.5 text-white sm:rounded-xl sm:p-5 lg:p-4`}
                 initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.2 }}
@@ -52,18 +52,18 @@ export function PricingCards({ showHeading = true }: PricingCardsProps) {
                 whileHover={{ y: -2, transition: CARD_HOVER }}
               >
                 <div className="flex flex-1 flex-col">
-                  <h3 className="text-xl font-extrabold lg:text-2xl">{plan.name}</h3>
-                  <p className="mt-1.5 text-xs font-semibold opacity-90 lg:text-sm">
+                  <h3 className="text-sm font-extrabold sm:text-xl lg:text-2xl">{plan.name}</h3>
+                  <p className="mt-0.5 text-[10px] font-semibold opacity-90 sm:mt-1.5 sm:text-xs lg:text-sm">
                     vehicles starting at
                   </p>
-                  <p className="mt-0.5 flex items-baseline gap-1">
-                    <span className="text-2xl font-bold lg:text-3xl">{plan.price}</span>
-                    <span className="text-base opacity-90 lg:text-lg">{plan.cadence}</span>
+                  <p className="flex items-baseline gap-0.5 sm:gap-1">
+                    <span className="text-base font-bold sm:text-2xl lg:text-3xl">{plan.price}</span>
+                    <span className="text-[10px] opacity-90 sm:text-base lg:text-lg">{plan.cadence}</span>
                   </p>
-                  <p className="mt-0.5 text-[11px] italic opacity-90 lg:text-xs">
+                  <p className="mt-0.5 text-[9px] italic leading-tight opacity-90 sm:text-[11px] lg:text-xs">
                     {plan.setupFee}
                   </p>
-                  <ul className="mt-4 space-y-1.5 lg:mt-5">
+                  <ul className="mt-2 hidden space-y-1 sm:mt-4 sm:block sm:space-y-1.5 lg:mt-5">
                     {plan.features.map((feature) => (
                       <li key={feature} className="flex items-center gap-2 text-xs lg:text-sm">
                         <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/20">
@@ -87,7 +87,7 @@ export function PricingCards({ showHeading = true }: PricingCardsProps) {
                   </ul>
                   <Link
                     href="/#vehicles"
-                    className="mt-4 inline-flex w-full items-center justify-center rounded-lg bg-white/20 px-3 py-2.5 text-xs font-semibold text-white backdrop-blur transition-colors hover:bg-white/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent lg:mt-5 lg:py-2 lg:text-sm"
+                    className="mt-1.5 inline-flex w-full items-center justify-center rounded bg-white/20 px-2 py-1 text-[10px] font-semibold text-white backdrop-blur transition-colors hover:bg-white/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent sm:mt-4 sm:rounded-lg sm:px-3 sm:py-2.5 sm:text-xs lg:mt-5 lg:py-2 lg:text-sm"
                   >
                     View Vehicles
                   </Link>

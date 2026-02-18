@@ -99,7 +99,7 @@ export function Hero() {
 
   return (
     <section
-      className="relative flex min-h-screen w-full flex-col justify-center overflow-hidden bg-gradient-to-br from-stone-900 pt-20 pb-10 snap-start lg:items-center lg:pb-0"
+      className="relative flex min-h-screen w-full flex-col justify-start overflow-x-hidden bg-gradient-to-br from-stone-900 pt-16 pb-6 snap-start lg:pt-20 lg:justify-center lg:items-center lg:overflow-hidden lg:pb-0"
       aria-label="Hero"
       data-hero-fade-ms={fadeDurationMs}
     >
@@ -134,37 +134,37 @@ export function Hero() {
         aria-hidden
       />
 
-      <div className="relative z-10 w-full px-4 lg:px-16">
-        <div className="mx-auto grid w-full max-w-7xl gap-8 lg:gap-12">
+      <div className="relative z-10 flex min-h-0 flex-1 flex-col w-full px-4 lg:flex-none lg:px-16">
+        <div className="mx-auto grid w-full max-w-7xl flex-1 min-h-0 gap-4 lg:gap-12">
           {/* Two-column: left = copy, right = car; then mobile buttons */}
-          <div className="grid w-full grid-cols-1 justify-items-center gap-8 overflow-hidden lg:grid-cols-2 lg:h-[60vh]">
+          <div className="grid w-full grid-cols-1 justify-items-center gap-3 overflow-hidden lg:grid-cols-2 lg:gap-12 lg:h-[60vh]">
             {/* Left: headline + bullets + desktop CTA */}
-            <div className="flex flex-col justify-around space-y-6 lg:space-y-4">
-              <div className="flex flex-wrap justify-center gap-2 text-center drop-shadow-lg lg:justify-start lg:gap-4 lg:text-left">
-                <p className="text-3xl font-extrabold text-white lg:text-5xl">
+            <div className="flex flex-col justify-around space-y-3 lg:space-y-4">
+              <div className="flex flex-wrap justify-center gap-1.5 text-center drop-shadow-lg lg:justify-start lg:gap-4 lg:text-left">
+                <p className="text-xl font-extrabold leading-tight text-white sm:text-2xl lg:text-5xl">
                   {hero.heading.trim()}
                 </p>
-                <p className="hero-headline-gradient text-3xl font-extrabold lg:text-5xl">
+                <p className="hero-headline-gradient text-xl font-extrabold leading-tight sm:text-2xl lg:text-5xl">
                   {hero.highlighted}
                 </p>
-                <p className="text-3xl font-extrabold text-white lg:text-5xl">
+                <p className="text-xl font-extrabold leading-tight text-white sm:text-2xl lg:text-5xl">
                   {hero.headingSuffix?.trim() ?? ""}
                 </p>
               </div>
 
-              <div className="grid gap-4 text-sm text-white lg:gap-8 lg:text-base">
+              <div className="grid gap-2 text-white lg:gap-8 sm:gap-3 sm:text-sm lg:text-base">
                 {hero.bullets.map((item, index) => (
                   <div
                     key={index}
-                    className="flex items-center space-x-4"
+                    className="flex items-start space-x-2 sm:space-x-4"
                   >
                     <span
-                      className="h-4 w-4 shrink-0 rounded-full border-2 border-white"
+                      className="mt-0.5 h-3 w-3 shrink-0 rounded-full border-2 border-white sm:h-4 sm:w-4"
                       aria-hidden
                     />
-                    <div>
-                      <p className="font-bold lg:text-lg">{item.title}</p>
-                      <p className="text-white/90">{item.description}</p>
+                    <div className="min-w-0">
+                      <p className="font-bold text-xs leading-snug sm:text-sm lg:text-lg">{item.title}</p>
+                      <p className="text-white/90 text-xs leading-snug sm:text-sm">{item.description}</p>
                     </div>
                   </div>
                 ))}
@@ -188,7 +188,7 @@ export function Hero() {
             </div>
 
             {/* Right: car image */}
-            <div className="relative w-full min-h-[20vh] lg:min-w-[50vw]">
+            <div className="relative w-full min-h-0 lg:min-h-0 lg:min-w-[50vw]">
               <div className="absolute inset-0 hidden items-end justify-center lg:flex">
                 {heroBanners.map((banner, index) => (
                   <div
@@ -215,12 +215,12 @@ export function Hero() {
                   </div>
                 ))}
               </div>
-              {/* Mobile car */}
-              <div className="relative aspect-[16/10] w-full min-h-[180px] lg:hidden">
+              {/* Mobile car — larger focal point, better presence */}
+              <div className="relative mx-auto h-[26vh] min-h-[180px] max-h-[220px] w-full max-w-[95vw] lg:hidden">
                 {heroBanners.map((banner, index) => (
                   <div
                     key={banner.id}
-                    className="hero-car-layer absolute inset-0"
+                    className="hero-car-layer absolute inset-0 flex items-end justify-center"
                     style={{
                       opacity: index === safeIndex ? 1 : 0,
                       transitionDuration: `${fadeDurationMs}ms`,
@@ -233,7 +233,7 @@ export function Hero() {
                       fill
                       priority={index === 0}
                       className="object-contain object-bottom"
-                      sizes="100vw"
+                      sizes="(max-width: 480px) 95vw, 420px"
                       unoptimized={banner.carSrc.endsWith(".svg")}
                       onError={() => useFallback(banner.carSrc)}
                     />
@@ -242,8 +242,8 @@ export function Hero() {
               </div>
             </div>
 
-            {/* Mobile: two buttons stacked */}
-            <div className="grid w-full gap-2 lg:hidden">
+            {/* Mobile: two buttons stacked — compact */}
+            <div className="grid w-full grid-cols-1 gap-1.5 sm:gap-2 lg:hidden">
               <motion.span
                 whileHover={ctaHover}
                 whileTap={{ scale: 0.98 }}
@@ -252,7 +252,7 @@ export function Hero() {
               >
                 <Link
                   href={hero.primaryCta.href}
-                  className="inline-flex w-full items-center justify-center rounded-lg bg-yellow-500 px-6 py-3.5 text-base font-semibold text-stone-900 shadow-lg transition-[box-shadow,background-color] duration-200 hover:bg-yellow-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900"
+                  className="inline-flex w-full items-center justify-center rounded-lg bg-yellow-500 px-4 py-2.5 text-sm font-semibold text-stone-900 shadow-lg transition-[box-shadow,background-color] duration-200 hover:bg-yellow-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900 sm:px-6 sm:py-3 sm:text-base"
                 >
                   {hero.primaryCta.label}
                 </Link>
@@ -264,7 +264,7 @@ export function Hero() {
               >
                 <Link
                   href={hero.secondaryCta.href}
-                  className="inline-flex w-full items-center justify-center rounded-lg py-3.5 text-base font-semibold text-white transition-colors hover:text-white/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900"
+                  className="inline-flex w-full items-center justify-center rounded-lg py-2.5 text-sm font-semibold text-white transition-colors hover:text-white/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900 sm:py-3 sm:text-base"
                 >
                   {hero.secondaryCta.label}
                 </Link>
@@ -309,11 +309,11 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Mobile: show logo strip as horizontal scroll */}
-      <div className="relative z-20 mt-6 px-4 pb-6 lg:hidden">
+      {/* Mobile: show logo strip as horizontal scroll — compact */}
+      <div className="relative z-20 mt-2 flex-shrink-0 px-4 pb-2 lg:hidden">
         <Container>
           <div
-            className="no-scrollbar flex justify-center gap-6 overflow-x-auto py-2 [scroll-snap-type:x_mandatory]"
+            className="no-scrollbar flex justify-center gap-4 overflow-x-auto py-1 [scroll-snap-type:x_mandatory]"
             role="tablist"
             aria-label="Select hero banner"
           >
@@ -331,7 +331,7 @@ export function Hero() {
                   className="hero-logo-btn flex shrink-0 cursor-pointer items-center justify-center [scroll-snap-align:center] focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900"
                   data-active={isActive}
                 >
-                  <span className="flex h-9 items-center">
+                  <span className="flex h-7 items-center sm:h-8">
                     <Image
                       src={banner.logoSrc}
                       alt=""
