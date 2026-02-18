@@ -124,6 +124,7 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
     if (reduceMotion || isMobile) return;
 
     const onWheel = (e: WheelEvent) => {
+      if (activeIndexRef.current >= sectionCount - 2) return; /* no scroll behavior on Car Membership or footer */
       e.preventDefault();
       e.stopPropagation();
       wheelAccumulator.current += e.deltaY;
@@ -142,6 +143,7 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
     };
 
     const onKeyDown = (e: KeyboardEvent) => {
+      if (activeIndexRef.current >= sectionCount - 2) return; /* no scroll behavior on Car Membership or footer */
       const key = e.key;
       const target = e.target as HTMLElement;
       const isInteractive = target.closest(
@@ -164,6 +166,7 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
     };
 
     const onTouchEnd = (e: TouchEvent) => {
+      if (activeIndexRef.current >= sectionCount - 2) return; /* no scroll behavior on Car Membership or footer */
       if (e.changedTouches.length === 0) return;
       const delta = touchStartY.current - e.changedTouches[0].clientY;
       if (delta > TOUCH_THRESHOLD) goNext();
@@ -182,7 +185,7 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
       document.removeEventListener("touchstart", onTouchStart);
       document.removeEventListener("touchend", onTouchEnd);
     };
-  }, [goNext, goPrev, reduceMotion, isMobile]);
+  }, [goNext, goPrev, reduceMotion, isMobile, sectionCount]);
 
   useEffect(() => {
     return () => {
@@ -251,20 +254,13 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
       ? `calc(${sectionCount - 1} * 100vh + ${lastSectionHeightPx}px)`
       : `${sectionCount * 100}vh`;
 
-  /* When on last section: show last 100vh of strip so we see part of previous section + full footer, no gap below */
-  const isLastSectionActive = displayIndex === sectionCount - 1;
-  const transform =
-    isLastSectionActive && lastSectionHeightPx > 0
-      ? `translateY(calc(-${sectionCount - 2} * 100vh - ${lastSectionHeightPx}px + 100vh))`
-      : `translateY(-${displayIndex * 100}vh)`;
-
   return (
     <div className="landing-fullpage">
       <div
         className="landing-fullpage-strip flex flex-col w-full"
         style={{
           height: stripHeight,
-          transform,
+          transform: `translateY(-${displayIndex * 100}vh)`,
           transition: `transform ${SECTION_TRANSITION_MS}ms ${SECTION_EASE}`,
         }}
       >
