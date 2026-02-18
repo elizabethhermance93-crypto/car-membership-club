@@ -348,9 +348,9 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
           const contentClass = [
             "landing-section-content min-h-screen w-full",
             isLast ? "landing-section-content-last" : "",
-            isActive ? "is-active" : "",
-            isEntering ? "is-entering" : "",
-            isExiting ? "is-exiting" : "",
+            !isNativeScrollSection && isActive ? "is-active" : "",
+            !isNativeScrollSection && isEntering ? "is-entering" : "",
+            !isNativeScrollSection && isExiting ? "is-exiting" : "",
           ]
             .filter(Boolean)
             .join(" ");
