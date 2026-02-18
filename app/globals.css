@@ -107,6 +107,17 @@ body.landing-scroll-snap main {
   filter: blur(0);
 }
 
+/* Native-scroll sections (Car Membership + Footer): no enter/exit animation, always fully visible */
+.landing-fullpage-strip .landing-section[data-native-scroll="true"] .landing-section-content {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: none;
+}
+.landing-fullpage-strip .landing-section[data-native-scroll="true"] .landing-section-content.is-entering,
+.landing-fullpage-strip .landing-section[data-native-scroll="true"] .landing-section-content.is-exiting {
+  animation: none;
+}
+
 /* Section content: full width, no horizontal overflow at any resolution */
 .landing-section-content {
   width: 100%;
