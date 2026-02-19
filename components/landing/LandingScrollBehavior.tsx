@@ -20,6 +20,7 @@ const SECTION_EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
 const MOBILE_BREAKPOINT_PX = 1024; /* lg */
 const LANDING_SECTION_CHANGE = "landing-section-change";
 const SCROLL_EDGE_EPSILON = 2;
+const NATIVE_SCROLL_SELECTOR = "[data-native-scroll=\"true\"]";
 
 /** Last two sections (Car Membership + Footer): native scroll region; indices sectionCount-2 and sectionCount-1 */
 function isInNativeScrollRange(index: number, count: number) {
@@ -41,6 +42,24 @@ function isContentAtBottom(el: HTMLElement) {
 
 function isContentAtTop(el: HTMLElement) {
   return el.scrollTop <= SCROLL_EDGE_EPSILON;
+}
+
+function isTargetInNativeZone(target: EventTarget | null) {
+  return target instanceof HTMLElement
+    ? Boolean(target.closest(NATIVE_SCROLL_SELECTOR))
+    : false;
+}
+
+function isViewportActiveSectionNative() {
+  const sections = document.querySelectorAll<HTMLElement>(".landing-fullpage-strip .landing-section");
+  const viewportMid = window.innerHeight / 2;
+  for (const section of sections) {
+    const rect = section.getBoundingClientRect();
+    if (rect.top <= viewportMid && rect.bottom >= viewportMid) {
+      return section.getAttribute("data-native-scroll") === "true";
+    }
+  }
+  return false;
 }
 
 type LandingScrollBehaviorProps = { children: ReactNode };
@@ -148,7 +167,11 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
 
     const onWheel = (e: WheelEvent) => {
       const idx = activeIndexRef.current;
-      if (isInNativeScrollRange(idx, sectionCount)) {
+      const inNativeZone =
+        isTargetInNativeZone(e.target) ||
+        isViewportActiveSectionNative() ||
+        isInNativeScrollRange(idx, sectionCount);
+      if (inNativeZone) {
         const contentFirst = getSectionContentEl(sectionCount - 2);
         const contentLast = getSectionContentEl(sectionCount - 1);
         if (idx === sectionCount - 2 && contentFirst && isContentAtBottom(contentFirst) && e.deltaY > 0) {
@@ -184,7 +207,10 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
 
     const onKeyDown = (e: KeyboardEvent) => {
       const idx = activeIndexRef.current;
-      if (isInNativeScrollRange(idx, sectionCount)) {
+      const inNativeZone =
+        isViewportActiveSectionNative() ||
+        isInNativeScrollRange(idx, sectionCount);
+      if (inNativeZone) {
         if (idx === sectionCount - 2) {
           const content = getSectionContentEl(sectionCount - 2);
           if (content && isContentAtBottom(content) && (e.key === "ArrowDown" || e.key === "PageDown" || (e.key === " " && !e.repeat))) {
@@ -230,7 +256,11 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
       if (e.changedTouches.length === 0) return;
       const idx = activeIndexRef.current;
       const delta = touchStartY.current - e.changedTouches[0].clientY;
-      if (isInNativeScrollRange(idx, sectionCount)) {
+      const inNativeZone =
+        isTargetInNativeZone(e.target) ||
+        isViewportActiveSectionNative() ||
+        isInNativeScrollRange(idx, sectionCount);
+      if (inNativeZone) {
         if (idx === sectionCount - 2 && delta > TOUCH_THRESHOLD) {
           const content = getSectionContentEl(sectionCount - 2);
           if (content && isContentAtBottom(content)) goNext();
@@ -355,7 +385,7 @@ export function LandingScrollBehavior({ children }: LandingScrollBehaviorProps) 
             <section
               key={index}
               ref={isLast ? setLastSectionRef : undefined}
-              className="landing-section min-h-screen min-w-full shrink-0"
+              className={`landing-section min-w-full shrink-0 ${isLast ? "" : "min-h-screen"}`}
               style={{ height: isLast ? "auto" : "100vh" }}
               data-section-index={index}
               {...(isNativeScrollSection ? { "data-native-scroll": "true" } : {})}
