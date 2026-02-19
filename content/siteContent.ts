@@ -134,6 +134,18 @@ export type VehicleSlide = {
   blurb: string;
 };
 
+/** Single inventory vehicle (year, make, model, membership, category, image). */
+export type InventoryItem = {
+  id: string;
+  year: number;
+  make: string;
+  model: string;
+  membershipTier: string;
+  category: "SUV" | "Sedan" | "Coupe";
+  image: string;
+  blurb?: string;
+};
+
 export type TestimonialItem = {
   id: string;
   name: string;
@@ -235,26 +247,25 @@ export const siteContent = {
       },
     ],
   } satisfies HeroContent,
-  /** 6 hero banners: paths match .webp files in public/hero/ (bkg-* backgrounds, vehicle-* cars). Fallback to placeholder if load fails. */
+  /** 6 hero banners: match inventory brands. Paths in public/hero/ or public/vehicles/. */
   heroBanners: [
-    { id: "porsche", name: "Porsche", bgSrc: "/hero/bkg-porsche.805577f5.webp", carSrc: "/hero/vehicle-porsche.b15b22ea.webp", logoSrc: "/images/logo-porsche.0425572f.webp", alt: "Porsche vehicle" },
-    { id: "mercedes", name: "Mercedes-Benz", bgSrc: "/hero/bkg-mercedes.d3a82f39.webp", carSrc: "/hero/vehicle-mercedes.0a147147.webp", logoSrc: "/images/logo-mercedes.7fab82a1.webp", alt: "Mercedes-Benz vehicle" },
-    { id: "bmw", name: "BMW", bgSrc: "/hero/bkg-bmw.44444e6d.webp", carSrc: "/hero/vehicle-bmw.74b390dd.webp", logoSrc: "/images/logo-bmw.38037f30.webp", alt: "BMW vehicle" },
-    { id: "corvette", name: "Corvette", bgSrc: "/hero/bkg-corvette.34333aa4.webp", carSrc: "/hero/vehicle-corvette.5995d671.webp", logoSrc: "/images/logo-corvette.444868a4.webp", alt: "Corvette vehicle" },
-    { id: "audi", name: "Audi", bgSrc: "/hero/bkg-audi.eb8d1980.webp", carSrc: "/hero/vehicle-audi.a53bb7b6.webp", logoSrc: "/images/logo-audi.5afecd8e.webp", alt: "Audi vehicle" },
-    { id: "chevrolet", name: "Chevrolet", bgSrc: "/hero/bkg-chevrolet.9baa69ea.webp", carSrc: "/hero/vehicle-chevrolet.897e9d29.webp", logoSrc: "/images/logo-chevrolet.8140fe97.webp", alt: "Chevrolet vehicle" },
+    { id: "porsche", name: "Porsche", bgSrc: "/hero/bg-placeholder.svg", carSrc: "/vehicles/2016-porsche-panamera.jpeg", logoSrc: "/images/logo-porsche.svg", alt: "Porsche Panamera" },
+    { id: "cadillac", name: "Cadillac", bgSrc: "/hero/bg-placeholder.svg", carSrc: "/vehicles/2018-cadillac-escalade.jpeg", logoSrc: "/images/logo-cadillac.svg", alt: "Cadillac Escalade" },
+    { id: "bmw", name: "BMW", bgSrc: "/hero/bg-placeholder.svg", carSrc: "/vehicles/2015-bmw-750xi.jpeg", logoSrc: "/images/logo-bmw.svg", alt: "BMW 750 Xi" },
+    { id: "alfa-romeo", name: "Alfa Romeo", bgSrc: "/hero/bg-placeholder.svg", carSrc: "/vehicles/2022-alfa-romeo-giulia.jpeg", logoSrc: "/images/logo-alfa-romeo.svg", alt: "Alfa Romeo Giulia" },
+    { id: "mercedes", name: "Mercedes-Benz", bgSrc: "/hero/bg-placeholder.svg", carSrc: "/vehicles/2018-mercedes-c300.jpeg", logoSrc: "/images/logo-mercedes.svg", alt: "Mercedes-Benz C 300" },
   ] satisfies HeroBanner[],
   brandLogos: [
-    { id: "porsche", name: "Porsche", image: "/images/logo-porsche.0425572f.webp" },
-    { id: "mercedes", name: "Mercedes-Benz", image: "/images/logo-mercedes.7fab82a1.webp" },
-    { id: "bmw", name: "BMW", image: "/images/logo-bmw.38037f30.webp" },
-    { id: "corvette", name: "Corvette", image: "/images/logo-corvette.444868a4.webp" },
-    { id: "audi", name: "Audi", image: "/images/logo-audi.5afecd8e.webp" },
-    { id: "chevrolet", name: "Chevrolet", image: "/images/logo-chevrolet.8140fe97.webp" },
+    { id: "porsche", name: "Porsche", image: "/images/logo-porsche.svg" },
+    { id: "cadillac", name: "Cadillac", image: "/images/logo-cadillac.svg" },
+    { id: "bmw", name: "BMW", image: "/images/logo-bmw.svg" },
+    { id: "alfa-romeo", name: "Alfa Romeo", image: "/images/logo-alfa-romeo.svg" },
+    { id: "gmc", name: "GMC", image: "/images/logo-gmc.svg" },
+    { id: "mercedes", name: "Mercedes-Benz", image: "/images/logo-mercedes.svg" },
   ] satisfies BrandLogoItem[],
   videoBlock: {
     preheadline: "LEARN ABOUT",
-    headline: "POSH in ",
+    headline: "Zipsters in ",
     highlighted: "60 seconds",
     thumbnail: "/images/intro-thumbnail.8cc39350.webp",
     thumbnailAlt: "Watch: How it works in 60 seconds",
@@ -364,7 +375,7 @@ export const siteContent = {
         highlightVariant: "white",
         paragraphs: [
           "If you've ever needed a car for more than a few weeks, you know your options are limited. Traditional car rentals work great for a weekend trip, but they get expensive fast when you need a vehicle for a month or longer. That's where car membership changes everything.",
-          "POSH is like a monthly car rental—but with everything included. One flat fee covers your vehicle, insurance, maintenance, roadside assistance, registration, and even the freedom to swap cars whenever you want. No contracts. No hidden fees. No hassle.",
+          "Zipsters is like a monthly car rental—but with everything included. One flat fee covers your vehicle, insurance, maintenance, roadside assistance, registration, and even the freedom to swap cars whenever you want. No contracts. No hidden fees. No hassle.",
         ],
       },
       {
@@ -374,9 +385,9 @@ export const siteContent = {
         highlightVariant: "gold",
         titleSuffix: " Works.",
         paragraphs: [
-          "It's simple: you pay one monthly fee and get access to luxury vehicles without the commitment of buying or leasing. Need a car for three months while your new vehicle is being built? Relocating to Dallas or Boston for a work assignment? Just want to drive a luxury car without the depreciation headache? POSH gives you the flexibility to drive what you want, for as long as you need, with the ability to cancel anytime.",
-          "Unlike traditional long-term rentals that charge you separately for insurance, maintenance, and endless fees, POSH bundles everything into one transparent monthly payment.",
-          "And unlike leases that lock you into 3-5 years with strict mileage limits, POSH lets you drive up to 2,400 miles per month with no long-term commitment.",
+          "It's simple: you pay one monthly fee and get access to luxury vehicles without the commitment of buying or leasing. Need a car for three months while your new vehicle is being built? Relocating to Dallas or Boston for a work assignment? Just want to drive a luxury car without the depreciation headache? Zipsters gives you the flexibility to drive what you want, for as long as you need, with the ability to cancel anytime.",
+          "Unlike traditional long-term rentals that charge you separately for insurance, maintenance, and endless fees, Zipsters bundles everything into one transparent monthly payment.",
+          "And unlike leases that lock you into 3-5 years with strict mileage limits, Zipsters lets you drive up to 2,400 miles per month with no long-term commitment.",
         ],
       },
     ],
@@ -512,6 +523,20 @@ export const siteContent = {
       blurb: "Executive-class style and premium cabin feel.",
     },
   ] satisfies VehicleSlide[],
+  /** Current inventory: real vehicles and membership tiers. Images in public/vehicles/. */
+  inventory: [
+    { id: "inv-2", year: 2016, make: "Porsche", model: "Panamera", membershipTier: "Platinum", category: "Sedan", image: "/vehicles/2016-porsche-panamera.jpeg", blurb: "Dark gray 2016 Porsche Panamera. Platinum Membership." },
+    { id: "inv-3", year: 2018, make: "Cadillac", model: "Escalade", membershipTier: "Exotics", category: "SUV", image: "/vehicles/2018-cadillac-escalade.jpeg", blurb: "White 2018 Cadillac Escalade. Exotic Membership." },
+    { id: "inv-4", year: 2015, make: "BMW", model: "750 Xi", membershipTier: "Gold", category: "Sedan", image: "/vehicles/2015-bmw-750xi.jpeg", blurb: "White 2015 BMW 750 Xi. Gold Membership." },
+    { id: "inv-5", year: 2022, make: "Alfa Romeo", model: "Giulia", membershipTier: "Platinum", category: "Sedan", image: "/vehicles/2022-alfa-romeo-giulia.jpeg", blurb: "Black 2022 Alfa Romeo Giulia. Platinum Membership." },
+    { id: "inv-6", year: 2016, make: "Porsche", model: "Cayenne", membershipTier: "Gold", category: "SUV", image: "/vehicles/2016-porsche-cayenne.jpeg", blurb: "White 2016 Porsche Cayenne. Gold Membership." },
+    { id: "inv-7", year: 2022, make: "GMC", model: "Acadia Denali", membershipTier: "Platinum", category: "SUV", image: "/vehicles/2022-gmc-acadia-denali.jpeg", blurb: "Charcoal 2022 GMC Acadia Denali. Platinum Membership." },
+    { id: "inv-8", year: 2014, make: "BMW", model: "328 Sedan", membershipTier: "Silver", category: "Sedan", image: "/vehicles/2014-bmw-328-sedan.jpeg", blurb: "Red 2014 BMW 328 Sedan. Silver Membership." },
+    { id: "inv-9", year: 2018, make: "Alfa Romeo", model: "Stelvio", membershipTier: "Gold", category: "SUV", image: "/vehicles/2018-alfa-romeo-stelvio.jpeg", blurb: "Red 2018 Alfa Romeo Stelvio. Gold Membership." },
+    { id: "inv-10", year: 2018, make: "Mercedes-Benz", model: "C 300", membershipTier: "Gold", category: "Coupe", image: "/vehicles/2018-mercedes-c300.jpeg", blurb: "White 2018 Mercedes C 300 Coupe. Gold Membership." },
+    { id: "inv-11", year: 2015, make: "Mercedes-Benz", model: "E 350 Sedan", membershipTier: "Platinum", category: "Sedan", image: "/vehicles/2015-mercedes-e350-sedan.jpeg", blurb: "Silver 2015 Mercedes E 350 Sedan. Platinum Membership." },
+    { id: "inv-12", year: 2014, make: "Mercedes-Benz", model: "E 400 Coupe", membershipTier: "Platinum", category: "Coupe", image: "/vehicles/2014-mercedes-e400-coupe.jpeg", blurb: "White 2014 Mercedes E 400 Coupe. Platinum Membership." },
+  ] satisfies InventoryItem[],
   testimonialsSection: {
     preheadline: "REVIEWS",
     headline: "Our ",
@@ -529,7 +554,7 @@ export const siteContent = {
       avatar: "",
       quote:
         "Great experience. Flexible options and no long-term commitment. Exactly what I needed for my situation. Would definitely come back.",
-      photo: "/images/car.8755593e.svg",
+      photo: "/vehicles/2016-porsche-panamera.jpeg",
     },
     {
       id: "review-sam-jentsch",
@@ -538,7 +563,7 @@ export const siteContent = {
       avatar: "",
       quote:
         "Smooth process from start to finish. Would recommend to anyone looking for a flexible vehicle solution. The team was helpful and made everything easy.",
-      photo: "/images/car.8755593e.svg",
+      photo: "/vehicles/2016-porsche-panamera.jpeg",
     },
     {
       id: "review-marc-limotte",
@@ -547,7 +572,7 @@ export const siteContent = {
       avatar: "",
       quote:
         "Good service. Very few vehicle options if you need something last minute, but overall solid experience. Fair pricing and no surprises.",
-      photo: "/images/car.8755593e.svg",
+      photo: "/vehicles/2018-cadillac-escalade.jpeg",
     },
     {
       id: "review-gabby-patrick",
@@ -556,7 +581,7 @@ export const siteContent = {
       avatar: "",
       quote:
         "Excellent work, very professional! We had a great experience from start to finish and would recommend Refreshthelook to anyone.",
-      photo: "/images/car.8755593e.svg",
+      photo: "/vehicles/2015-bmw-750xi.jpeg",
     },
     {
       id: "review-scott-rhodes",
@@ -565,7 +590,7 @@ export const siteContent = {
       avatar: "",
       quote:
         "Professional team and hassle-free. Made switching vehicles easy when my needs changed. Couldn't ask for a better car membership experience.",
-      photo: "/images/car.8755593e.svg",
+      photo: "/vehicles/2022-alfa-romeo-giulia.jpeg",
     },
     {
       id: "review-alex-rivera",
@@ -574,7 +599,7 @@ export const siteContent = {
       avatar: "",
       quote:
         "Best car membership in the area. No hidden fees, clear terms. Will use again. The whole process was straightforward and stress-free.",
-      photo: "/images/car.8755593e.svg",
+      photo: "/vehicles/2018-mercedes-c300.jpeg",
     },
   ] satisfies TestimonialItem[],
   faqSection: {
@@ -640,7 +665,7 @@ export const siteContent = {
     {
       question: "What happens if I go over my mileage limit?",
       answer:
-        "Each POSH subscription plan includes generous monthly mileage (1800-2400 miles depending on your plan)—that's 3x more than traditional leases. Unused miles roll over month-to-month, so you have flexibility. If you do exceed your annual mileage allowance, there's a simple overage fee of $0.40 per extra mile, charged at the end of your subscription term. You can track your mileage anytime in the POSH app.",
+        "Each Zipsters membership plan includes generous monthly mileage (1800-2400 miles depending on your plan)—that's 3x more than traditional leases. Unused miles roll over month-to-month, so you have flexibility. If you do exceed your annual mileage allowance, there's a simple overage fee of $0.40 per extra mile, charged at the end of your subscription term. You can track your mileage anytime in the Zipsters app.",
     },
     {
       question: "Are there any restrictions regarding my membership with Zipsters?",

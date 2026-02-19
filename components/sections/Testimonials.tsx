@@ -92,7 +92,7 @@ function TestimonialCard({
       <div className="px-6 pb-6 pt-0 md:px-8 md:pb-8">
         <div className="relative h-44 w-full overflow-hidden rounded-xl">
           <Image
-            src={item.photo || "/images/car.8755593e.svg"}
+            src={item.photo || "/hero/vehicle-bmw.jpg"}
             alt=""
             fill
             className="object-cover"
