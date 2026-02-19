@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 
-import { LandingScrollBehavior } from "@/components/landing/LandingScrollBehavior";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { HeroBrandSection } from "@/components/sections/HeroBrandSection";
 import { FAQAccordion } from "@/components/sections/FAQAccordion";
@@ -19,7 +18,7 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   return (
-    <LandingScrollBehavior>
+    <>
       <HeroBrandSection />
       <ProblemsSection />
       <SolutionSection />
@@ -29,6 +28,6 @@ export default function HomePage() {
       <FAQAccordion />
       <CarSubscriptionSection />
       <SiteFooter />
-    </LandingScrollBehavior>
+    </>
   );
 }
