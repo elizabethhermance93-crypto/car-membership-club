@@ -247,13 +247,14 @@ export const siteContent = {
       },
     ],
   } satisfies HeroContent,
-  /** 6 hero banners: match inventory brands. Paths in public/hero/ or public/vehicles/. */
+  /** 6 hero banners: paths match .webp files in public/hero/ (bkg-* backgrounds, vehicle-* cars). Fallback to placeholder if load fails. */
   heroBanners: [
-    { id: "porsche", name: "Porsche", bgSrc: "/hero/bg-placeholder.svg", carSrc: "/vehicles/2016-porsche-panamera.jpeg", logoSrc: "/images/logo-porsche.svg", alt: "Porsche Panamera" },
-    { id: "cadillac", name: "Cadillac", bgSrc: "/hero/bg-placeholder.svg", carSrc: "/vehicles/2018-cadillac-escalade.jpeg", logoSrc: "/images/logo-cadillac.svg", alt: "Cadillac Escalade" },
-    { id: "bmw", name: "BMW", bgSrc: "/hero/bg-placeholder.svg", carSrc: "/vehicles/2015-bmw-750xi.jpeg", logoSrc: "/images/logo-bmw.svg", alt: "BMW 750 Xi" },
-    { id: "alfa-romeo", name: "Alfa Romeo", bgSrc: "/hero/bg-placeholder.svg", carSrc: "/vehicles/2022-alfa-romeo-giulia.jpeg", logoSrc: "/images/logo-alfa-romeo.svg", alt: "Alfa Romeo Giulia" },
-    { id: "mercedes", name: "Mercedes-Benz", bgSrc: "/hero/bg-placeholder.svg", carSrc: "/vehicles/2018-mercedes-c300.jpeg", logoSrc: "/images/logo-mercedes.svg", alt: "Mercedes-Benz C 300" },
+    { id: "porsche", name: "Porsche", bgSrc: "/hero/bkg-porsche.805577f5.webp", carSrc: "/hero/vehicle-porsche.b15b22ea.webp", logoSrc: "/images/logo-porsche.0425572f.webp", alt: "Porsche vehicle" },
+    { id: "mercedes", name: "Mercedes-Benz", bgSrc: "/hero/bkg-mercedes.d3a82f39.webp", carSrc: "/hero/vehicle-mercedes.0a147147.webp", logoSrc: "/images/logo-mercedes.7fab82a1.webp", alt: "Mercedes-Benz vehicle" },
+    { id: "bmw", name: "BMW", bgSrc: "/hero/bkg-bmw.44444e6d.webp", carSrc: "/hero/vehicle-bmw.74b390dd.webp", logoSrc: "/images/logo-bmw.38037f30.webp", alt: "BMW vehicle" },
+    { id: "corvette", name: "Corvette", bgSrc: "/hero/bkg-corvette.34333aa4.webp", carSrc: "/hero/vehicle-corvette.5995d671.webp", logoSrc: "/images/logo-corvette.444868a4.webp", alt: "Corvette vehicle" },
+    { id: "audi", name: "Audi", bgSrc: "/hero/bkg-audi.eb8d1980.webp", carSrc: "/hero/vehicle-audi.a53bb7b6.webp", logoSrc: "/images/logo-audi.5afecd8e.webp", alt: "Audi vehicle" },
+    { id: "chevrolet", name: "Chevrolet", bgSrc: "/hero/bkg-chevrolet.9baa69ea.webp", carSrc: "/hero/vehicle-chevrolet.897e9d29.webp", logoSrc: "/images/logo-chevrolet.8140fe97.webp", alt: "Chevrolet vehicle" },
   ] satisfies HeroBanner[],
   brandLogos: [
     { id: "porsche", name: "Porsche", image: "/images/logo-porsche.svg" },
