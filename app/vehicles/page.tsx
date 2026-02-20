@@ -24,17 +24,17 @@ const locationOptions = [
 ];
 
 const nextSteps = [
-  { title: "Discover Our Brands & Models...", image: "/images/2024-03-19.webp" },
-  { title: "Trade in Your Old Vehicle...", image: "/images/2024-03-30.webp" },
-  { title: "View Plans & Pricing...", image: "/images/2024-04-08.webp" },
-  { title: "Learn How to use the Mobile App...", image: "/images/2024-10-15.webp" },
+  { title: "", image: "/images/discover-brand.png" },
+  { title: "", image: "/images/trading.png" },
+  { title: "", image: "/images/find-pricing.png" },
+  { title: "", image: "/images/how-to-use-mobile.png" },
 ];
 
 /** First 6 vehicles from inventory for the vehicle cards section (year, make, model + image). */
 function getVehicleCards() {
   return siteContent.inventory.slice(0, 6).map((v) => ({
     id: v.id,
-    label: `${v.year} ${v.make} ${v.model}`,
+    label: `${v.make}`,
     membershipTier: v.membershipTier,
     image: v.image,
   }));
@@ -47,9 +47,9 @@ function getFeaturedVehicleGroups() {
     return {
       id: v.id,
       name,
-      leftImage: v.image,
+      leftImage: v.thumbnails[1],
       centerImage: v.image,
-      rightImage: v.image,
+      rightImage: v.thumbnails[2],
     };
   });
 }
@@ -266,7 +266,7 @@ export default function VehiclesPage({ searchParams }: VehiclesPageProps) {
           </h3>
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {nextSteps.map((step) => (
-              <div className="group relative h-72 cursor-pointer overflow-hidden rounded-xl border border-stone-300/70 bg-white transition-all duration-300 hover:-translate-y-0.5 hover:border-stone-400 hover:shadow-xl hover:shadow-stone-400/30" key={step.title}>
+              <div className="group relative h-72 cursor-pointer overflow-hidden rounded-xl border border-stone-300/70 bg-white transition-all duration-300 hover:-translate-y-0.5 hover:border-stone-400 hover:shadow-xl hover:shadow-stone-400/30" key={step.image}>
                 <Image
                   src={step.image}
                   alt={step.title}

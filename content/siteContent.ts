@@ -143,6 +143,7 @@ export type InventoryItem = {
   membershipTier: string;
   category: "SUV" | "Sedan" | "Coupe";
   image: string;
+  thumbnails: Array<String>;
   blurb?: string;
 };
 
@@ -263,6 +264,7 @@ export const siteContent = {
     { id: "alfa-romeo", name: "Alfa Romeo", image: "/images/logo-alfa-romeo.svg" },
     { id: "gmc", name: "GMC", image: "/images/logo-gmc.svg" },
     { id: "mercedes", name: "Mercedes-Benz", image: "/images/logo-mercedes.svg" },
+    { id: "audi", name: "Audi", image: "/images/logo-audi.5afecd8e.webp" },
   ] satisfies BrandLogoItem[],
   videoBlock: {
     preheadline: "LEARN ABOUT",
@@ -526,17 +528,186 @@ export const siteContent = {
   ] satisfies VehicleSlide[],
   /** Current inventory: real vehicles and membership tiers. Images in public/vehicles/. */
   inventory: [
-    { id: "inv-2", year: 2016, make: "Porsche", model: "Panamera", membershipTier: "Platinum", category: "Sedan", image: "/vehicles/2016-porsche-panamera.jpeg", blurb: "Dark gray 2016 Porsche Panamera. Platinum Membership." },
-    { id: "inv-3", year: 2018, make: "Cadillac", model: "Escalade", membershipTier: "Exotics", category: "SUV", image: "/vehicles/2018-cadillac-escalade.jpeg", blurb: "White 2018 Cadillac Escalade. Exotic Membership." },
-    { id: "inv-4", year: 2015, make: "BMW", model: "750 Xi", membershipTier: "Gold", category: "Sedan", image: "/vehicles/2015-bmw-750xi.jpeg", blurb: "White 2015 BMW 750 Xi. Gold Membership." },
-    { id: "inv-5", year: 2022, make: "Alfa Romeo", model: "Giulia", membershipTier: "Platinum", category: "Sedan", image: "/vehicles/2022-alfa-romeo-giulia.jpeg", blurb: "Black 2022 Alfa Romeo Giulia. Platinum Membership." },
-    { id: "inv-6", year: 2016, make: "Porsche", model: "Cayenne", membershipTier: "Gold", category: "SUV", image: "/vehicles/2016-porsche-cayenne.jpeg", blurb: "White 2016 Porsche Cayenne. Gold Membership." },
-    { id: "inv-7", year: 2022, make: "GMC", model: "Acadia Denali", membershipTier: "Platinum", category: "SUV", image: "/vehicles/2022-gmc-acadia-denali.jpeg", blurb: "Charcoal 2022 GMC Acadia Denali. Platinum Membership." },
-    { id: "inv-8", year: 2014, make: "BMW", model: "328 Sedan", membershipTier: "Silver", category: "Sedan", image: "/vehicles/2014-bmw-328-sedan.jpeg", blurb: "Red 2014 BMW 328 Sedan. Silver Membership." },
-    { id: "inv-9", year: 2018, make: "Alfa Romeo", model: "Stelvio", membershipTier: "Gold", category: "SUV", image: "/vehicles/2018-alfa-romeo-stelvio.jpeg", blurb: "Red 2018 Alfa Romeo Stelvio. Gold Membership." },
-    { id: "inv-10", year: 2018, make: "Mercedes-Benz", model: "C 300", membershipTier: "Gold", category: "Coupe", image: "/vehicles/2018-mercedes-c300.jpeg", blurb: "White 2018 Mercedes C 300 Coupe. Gold Membership." },
-    { id: "inv-11", year: 2015, make: "Mercedes-Benz", model: "E 350 Sedan", membershipTier: "Platinum", category: "Sedan", image: "/vehicles/2015-mercedes-e350-sedan.jpeg", blurb: "Silver 2015 Mercedes E 350 Sedan. Platinum Membership." },
-    { id: "inv-12", year: 2014, make: "Mercedes-Benz", model: "E 400 Coupe", membershipTier: "Platinum", category: "Coupe", image: "/vehicles/2014-mercedes-e400-coupe.jpeg", blurb: "White 2014 Mercedes E 400 Coupe. Platinum Membership." },
+    {
+      id: "inv-2",
+      year: 2016,
+      make: "Porsche",
+      model: "Panamera",
+      membershipTier: "Platinum",
+      category: "Sedan",
+      image: "/vehicles/2016-porsche-panamera.jpeg",
+      thumbnails: [
+        "/vehicles/2016-porsche-panamera.jpeg",
+        "/vehicles/2016-porsche-panamera-2.jpeg",
+        "/vehicles/2016-porsche-panamera-3.jpeg",
+        "/vehicles/2016-porsche-panamera-4.jpeg",
+        "/vehicles/2016-porsche-panamera-5.jpeg",
+        "/vehicles/2016-porsche-panamera-6.jpeg"
+      ],
+      blurb: "Dark gray 2016 Porsche Panamera. Platinum Membership."
+    },
+    {
+      id: "inv-3",
+      year: 2018,
+      make: "Cadillac",
+      model: "Escalade",
+      membershipTier: "Exotics",
+      category: "SUV",
+      image: "/vehicles/2018-cadillac-escalade.jpeg",
+      thumbnails: [
+        "/vehicles/2018-cadillac-escalade.jpeg",
+        "/vehicles/2018-cadillac-escalade-2.jpeg",
+        "/vehicles/2018-cadillac-escalade-3.jpeg",
+        "/vehicles/2018-cadillac-escalade-4.jpeg",
+        "/vehicles/2018-cadillac-escalade-5.jpeg",
+        "/vehicles/2018-cadillac-escalade-6.jpeg"
+      ],
+      blurb: "White 2018 Cadillac Escalade. Exotic Membership."
+    },
+    {
+      id: "inv-4",
+      year: 2015,
+      make: "BMW",
+      model: "750 Xi",
+      membershipTier: "Gold",
+      category: "Sedan",
+      image: "/vehicles/2015-bmw-750xi.jpeg",
+      thumbnails: [
+        "/vehicles/2015-bmw-750xi.jpeg",
+        "/vehicles/2015-bmw-750xi-2.jpeg",
+        "/vehicles/2015-bmw-750xi-3.jpeg",
+        "/vehicles/2015-bmw-750xi-4.jpeg"
+      ],
+      blurb: "White 2015 BMW 750 Xi. Gold Membership."
+    },
+    {
+      id: "inv-5",
+      year: 2022,
+      make: "Alfa Romeo",
+      model: "Giulia",
+      membershipTier: "Platinum",
+      category: "Sedan",
+      image: "/vehicles/2022-alfa-romeo-giulia.jpeg",
+      thumbnails: [
+        "/vehicles/2022-alfa-romeo-giulia.jpeg",
+        "/vehicles/2022-alfa-romeo-giulia-2.jpeg",
+        "/vehicles/2022-alfa-romeo-giulia-3.jpeg",
+        "/vehicles/2022-alfa-romeo-giulia-4.jpeg"
+      ],
+      blurb: "Black 2022 Alfa Romeo Giulia in our Platinum tier — a sleek, sporty sedan with a sharp look and a premium feel, perfect if you want something fun to drive but still classy for nights out or client meetings."
+    },
+    {
+      id: "inv-6",
+      year: 2016,
+      make: "Porsche",
+      model: "Cayenne",
+      membershipTier: "Gold",
+      category: "SUV",
+      image: "/vehicles/2016-porsche-cayenne.jpeg",
+      thumbnails: [
+        "/vehicles/2016-porsche-cayenne.jpeg",
+        "/vehicles/2016-porsche-cayenne-2.jpeg",
+        "/vehicles/2016-porsche-cayenne-3.jpeg",
+        "/vehicles/2016-porsche-cayenne-4.jpeg"
+      ],
+      blurb: "White 2016 Porsche Cayenne. Gold Membership."
+    },
+    {
+      id: "inv-7",
+      year: 2022,
+      make: "GMC",
+      model: "Acadia Denali",
+      membershipTier: "Platinum",
+      category: "SUV",
+      image: "/vehicles/2022-gmc-acadia-denali.jpeg",
+      thumbnails: [
+        "/vehicles/2022-gmc-acadia-denali.jpeg",
+        "/vehicles/2022-gmc-acadia-denali-2.jpeg",
+        "/vehicles/2022-gmc-acadia-denali-3.jpeg",
+        "/vehicles/2022-gmc-acadia-denali-4.jpeg"
+      ],
+      blurb: "Charcoal 2022 GMC Acadia Denali. Platinum Membership."
+    },
+    {
+      id: "inv-8",
+      year: 2014,
+      make: "BMW",
+      model: "328 Sedan",
+      membershipTier: "Silver",
+      category: "Sedan",
+      image: "/vehicles/2014-bmw-328-sedan.jpeg",
+      thumbnails: [
+        "/vehicles/2014-bmw-328-sedan.jpeg",
+        "/vehicles/2014-bmw-328-sedan-2.jpeg",
+        "/vehicles/2014-bmw-328-sedan-3.jpeg",
+        "/vehicles/2014-bmw-328-sedan-4.jpeg"
+      ],
+      blurb: "Red 2014 BMW 328 Sedan. Silver Membership."
+    },
+    {
+      id: "inv-9",
+      year: 2018,
+      make: "Alfa Romeo",
+      model: "Stelvio",
+      membershipTier: "Gold",
+      category: "SUV",
+      image: "/vehicles/2018-alfa-romeo-stelvio.jpeg",
+      thumbnails: [
+        "/vehicles/2018-alfa-romeo-stelvio.jpeg",
+        "/vehicles/2018-alfa-romeo-stelvio-2.jpeg",
+        "/vehicles/2018-alfa-romeo-stelvio-3.jpeg",
+        "/vehicles/2018-alfa-romeo-stelvio-4.jpeg"
+      ],
+      blurb: "Red 2018 Alfa Romeo Stelvio. Gold Membership."
+    },
+    {
+      id: "inv-10",
+      year: 2018,
+      make: "Mercedes-Benz",
+      model: "C 300",
+      membershipTier: "Gold",
+      category: "Coupe",
+      image: "/vehicles/2018-mercedes-c300.jpeg",
+      thumbnails: [
+        "/vehicles/2018-mercedes-c300.jpeg",
+        "/vehicles/2018-mercedes-c300-2.jpeg",
+        "/vehicles/2018-mercedes-c300-3.jpeg",
+        "/vehicles/2018-mercedes-c300-4.jpeg"
+      ],
+      blurb: "White 2018 Mercedes C 300 Coupe. Gold Membership."
+    },
+    {
+      id: "inv-11",
+      year: 2015,
+      make: "Mercedes-Benz",
+      model: "E 350 Sedan",
+      membershipTier: "Platinum",
+      category: "Sedan",
+      image: "/vehicles/2015-mercedes-e350-sedan.jpeg",
+      thumbnails: [
+        "/vehicles/2015-mercedes-e350-sedan.jpeg",
+        "/vehicles/2015-mercedes-e350-sedan-2.jpeg",
+        "/vehicles/2015-mercedes-e350-sedan-3.jpeg",
+        "/vehicles/2015-mercedes-e350-sedan-4.jpeg"
+      ],
+      blurb: "Silver 2015 Mercedes E 350 Sedan. Platinum Membership."
+    },
+    {
+      id: "inv-12",
+      year: 2014,
+      make: "Mercedes-Benz",
+      model: "E 400 Coupe",
+      membershipTier: "Platinum",
+      category: "Coupe",
+      image: "/vehicles/2014-mercedes-e400-coupe.jpeg",
+      thumbnails: [
+        "/vehicles/2014-mercedes-e400-coupe.jpeg",
+        "/vehicles/2014-mercedes-e400-coupe-2.jpeg",
+        "/vehicles/2014-mercedes-e400-coupe-3.jpeg",
+        "/vehicles/2014-mercedes-e400-coupe-4.jpeg"
+      ],
+      blurb: "White 2014 Mercedes E 400 Coupe. Platinum Membership."
+    }
   ] satisfies InventoryItem[],
   testimonialsSection: {
     preheadline: "REVIEWS",

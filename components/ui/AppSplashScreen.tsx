@@ -116,7 +116,7 @@ export function AppSplashScreen() {
       <div className="app-splash__content">
         <p className="app-splash__title">Loading your ride...</p>
         <div className="app-splash__track" aria-hidden="true">
-          <div className="app-splash__lane" />
+          <div className="app-splash__lane"></div>
           <div className="app-splash__car">
             <img
               src={carSrc}
