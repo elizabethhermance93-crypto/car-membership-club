@@ -32,10 +32,10 @@ const nextSteps = [
 
 /** First 6 vehicles from inventory for the vehicle cards section (year, make, model + image). */
 function getVehicleCards() {
-  return siteContent.inventory.slice(0, 6).map((v) => ({
+  return siteContent.inventoryTypes.map((v) => ({
     id: v.id,
-    label: `${v.make}`,
-    membershipTier: v.membershipTier,
+    label: `${v.category}`,
+    membershipTier: v.category,
     image: v.image,
   }));
 }
@@ -82,7 +82,7 @@ export default function VehiclesPage({ searchParams }: VehiclesPageProps) {
   const hasNoMatches = filteredVehicleCards.length === 0 && filteredBrands.length === 0;
 
   return (
-    <section className="relative overflow-hidden bg-stone-100 py-10 sm:py-14 lg:py-16">
+    <section className="relative overflow-hidden bg-stone-100 py-12 sm:py-14 lg:py-16">
       <div className="pointer-events-none absolute inset-0" aria-hidden>
         <PrismBackground />
       </div>
@@ -153,7 +153,7 @@ export default function VehiclesPage({ searchParams }: VehiclesPageProps) {
           ) : null}
         </form>
 
-        <div className="mt-8 grid w-full grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <div className="mt-8 grid w-full grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
           {filteredVehicleCards.map((card) => (
             <article
               key={card.id}

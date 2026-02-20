@@ -143,7 +143,15 @@ export type InventoryItem = {
   membershipTier: string;
   category: "SUV" | "Sedan" | "Coupe";
   image: string;
+  type: string;
   thumbnails: Array<String>;
+  blurb?: string;
+};
+
+export type InventoryType = {
+  id: string;
+  category: string;
+  image: string;
   blurb?: string;
 };
 
@@ -258,11 +266,11 @@ export const siteContent = {
     { id: "chevrolet", name: "Chevrolet", bgSrc: "/hero/bkg-chevrolet.9baa69ea.webp", carSrc: "/hero/vehicle-chevrolet.897e9d29.webp", logoSrc: "/images/logo-chevrolet.8140fe97.webp", alt: "Chevrolet vehicle" },
   ] satisfies HeroBanner[],
   brandLogos: [
-    { id: "porsche", name: "Porsche", image: "/images/logo-porsche.svg" },
-    { id: "cadillac", name: "Cadillac", image: "/images/logo-cadillac.svg" },
+    { id: "porsche", name: "Porsche", image: "/images/logo-porsche.0425572f.webp" },
+    { id: "cadillac", name: "Cadillac", image: "/images/logo-cadillac.jpg" },
     { id: "bmw", name: "BMW", image: "/images/logo-bmw.svg" },
-    { id: "alfa-romeo", name: "Alfa Romeo", image: "/images/logo-alfa-romeo.svg" },
-    { id: "gmc", name: "GMC", image: "/images/logo-gmc.svg" },
+    { id: "alfa-romeo", name: "Alfa Romeo", image: "/images/alfa-romeo-logo.jpg" },
+    { id: "gmc", name: "GMC", image: "/images/gmc-logo.jpg" },
     { id: "mercedes", name: "Mercedes-Benz", image: "/images/logo-mercedes.svg" },
     { id: "audi", name: "Audi", image: "/images/logo-audi.5afecd8e.webp" },
   ] satisfies BrandLogoItem[],
@@ -526,6 +534,34 @@ export const siteContent = {
       blurb: "Executive-class style and premium cabin feel.",
     },
   ] satisfies VehicleSlide[],
+
+  inventoryTypes: [
+    {
+      id: 'suv',
+      category: 'SUVs',
+      image: '/type/suv-type.jpg'
+    },
+    {
+      id: 'coupe',
+      category: 'Coupes',
+      image: '/type/coupe-type.png'
+    },
+    {
+      id: 'sedan',
+      category: 'Sedans',
+      image: '/type/sedan-type.png'
+    },
+    {
+      id: 'convertible',
+      category: 'Convertibles',
+      image: '/type/convertible-type.png'
+    },
+    {
+      id: 'truck',
+      category: 'Trucks',
+      image: '/type/truck-type.jpg'
+    }
+  ] satisfies InventoryType[],
   /** Current inventory: real vehicles and membership tiers. Images in public/vehicles/. */
   inventory: [
     {
@@ -535,6 +571,7 @@ export const siteContent = {
       model: "Panamera",
       membershipTier: "Platinum",
       category: "Sedan",
+      type: "Sedan",
       image: "/vehicles/2016-porsche-panamera.jpeg",
       thumbnails: [
         "/vehicles/2016-porsche-panamera.jpeg",
@@ -553,6 +590,7 @@ export const siteContent = {
       model: "Escalade",
       membershipTier: "Exotics",
       category: "SUV",
+      type: "SUV",
       image: "/vehicles/2018-cadillac-escalade.jpeg",
       thumbnails: [
         "/vehicles/2018-cadillac-escalade.jpeg",
@@ -571,6 +609,7 @@ export const siteContent = {
       model: "750 Xi",
       membershipTier: "Gold",
       category: "Sedan",
+      type: "Sedan",
       image: "/vehicles/2015-bmw-750xi.jpeg",
       thumbnails: [
         "/vehicles/2015-bmw-750xi.jpeg",
@@ -587,6 +626,7 @@ export const siteContent = {
       model: "Giulia",
       membershipTier: "Platinum",
       category: "Sedan",
+      type: "Sedan",
       image: "/vehicles/2022-alfa-romeo-giulia.jpeg",
       thumbnails: [
         "/vehicles/2022-alfa-romeo-giulia.jpeg",
@@ -603,6 +643,7 @@ export const siteContent = {
       model: "Cayenne",
       membershipTier: "Gold",
       category: "SUV",
+      type: "SUV",
       image: "/vehicles/2016-porsche-cayenne.jpeg",
       thumbnails: [
         "/vehicles/2016-porsche-cayenne.jpeg",
@@ -619,6 +660,7 @@ export const siteContent = {
       model: "Acadia Denali",
       membershipTier: "Platinum",
       category: "SUV",
+      type: "SUV",
       image: "/vehicles/2022-gmc-acadia-denali.jpeg",
       thumbnails: [
         "/vehicles/2022-gmc-acadia-denali.jpeg",
@@ -635,6 +677,7 @@ export const siteContent = {
       model: "328 Sedan",
       membershipTier: "Silver",
       category: "Sedan",
+      type: "Sedan",
       image: "/vehicles/2014-bmw-328-sedan.jpeg",
       thumbnails: [
         "/vehicles/2014-bmw-328-sedan.jpeg",
@@ -651,6 +694,7 @@ export const siteContent = {
       model: "Stelvio",
       membershipTier: "Gold",
       category: "SUV",
+      type: "SUV",
       image: "/vehicles/2018-alfa-romeo-stelvio.jpeg",
       thumbnails: [
         "/vehicles/2018-alfa-romeo-stelvio.jpeg",
@@ -667,6 +711,7 @@ export const siteContent = {
       model: "C 300",
       membershipTier: "Gold",
       category: "Coupe",
+      type: "Coupe",
       image: "/vehicles/2018-mercedes-c300.jpeg",
       thumbnails: [
         "/vehicles/2018-mercedes-c300.jpeg",
@@ -683,6 +728,7 @@ export const siteContent = {
       model: "E 350 Sedan",
       membershipTier: "Platinum",
       category: "Sedan",
+      type: "Sedan",
       image: "/vehicles/2015-mercedes-e350-sedan.jpeg",
       thumbnails: [
         "/vehicles/2015-mercedes-e350-sedan.jpeg",
@@ -699,6 +745,7 @@ export const siteContent = {
       model: "E 400 Coupe",
       membershipTier: "Platinum",
       category: "Coupe",
+      type: "Coupe",
       image: "/vehicles/2014-mercedes-e400-coupe.jpeg",
       thumbnails: [
         "/vehicles/2014-mercedes-e400-coupe.jpeg",
