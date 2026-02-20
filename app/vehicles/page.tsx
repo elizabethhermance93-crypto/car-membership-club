@@ -6,6 +6,7 @@ import { ChevronDown, ExternalLink, MapPin, Search } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { PrismBackground } from "@/components/ui/PrismBackground";
 import { FeaturedVehicleCarousel } from "@/components/vehicles/FeaturedVehicleCarousel";
+import { VehicleListFullScreen } from "@/components/vehicles/VehicleListFullScreen";
 import { siteContent } from "@/content/siteContent";
 
 export const metadata: Metadata = {
@@ -60,25 +61,68 @@ function getLatestAddition() {
   return sorted[0] ?? undefined;
 }
 
+/** Map URL type param (e.g. "suv") to inventory category. */
+function categoryMatches(typeParam: string | undefined, vehicleCategory: string) {
+  if (!typeParam) return true;
+  return vehicleCategory.toLowerCase() === typeParam.toLowerCase();
+}
+
+/** Filter inventory by search query and optional type (category). */
+function getFilteredInventory(query: string, typeParam: string | undefined) {
+  const list = siteContent.inventory.filter((v) => categoryMatches(typeParam, v.category));
+  if (!query) return list;
+  const q = query.toLowerCase();
+  return list.filter(
+    (v) =>
+      v.make.toLowerCase().includes(q) ||
+      v.model.toLowerCase().includes(q) ||
+      String(v.year).includes(q) ||
+      v.type?.toLowerCase().includes(q) ||
+      v.membershipTier.toLowerCase().includes(q)
+  );
+}
+
+/** Resolve brand logo URL by make name. */
+function getLogoForMake(make: string): string | undefined {
+  return siteContent.brandLogos.find((b) => b.name === make)?.image;
+}
+
 export default async function VehiclesPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ q?: string } | undefined>;
+  searchParams?: Promise<{ q?: string; type?: string } | undefined>;
 }) {
   const params = await searchParams;
   const queryRaw = (params?.q ?? "").trim();
+  const typeParam = (params?.type ?? "").trim().toLowerCase();
   const query = queryRaw.trim().toLowerCase();
   const vehicleCards = getVehicleCards();
   const brandCards = siteContent.brandLogos.map((b) => ({ label: b.name, logo: b.image }));
   const featuredVehicleGroups = getFeaturedVehicleGroups();
   const latestAddition = getLatestAddition();
+  const filteredList = getFilteredInventory(query, typeParam || undefined);
+  const showList = query.length > 0 || typeParam.length > 0;
+  const listWithLogos = filteredList.map((v) => ({
+    vehicle: v,
+    logoUrl: getLogoForMake(v.make),
+  }));
   const filteredVehicleCards = query
     ? vehicleCards.filter((card) => card.label.toLowerCase().includes(query))
     : vehicleCards;
   const filteredBrands = query
     ? brandCards.filter((brand) => brand.label.toLowerCase().includes(query))
     : brandCards;
-  const hasNoMatches = filteredVehicleCards.length === 0 && filteredBrands.length === 0;
+  const hasNoMatches = !showList && filteredVehicleCards.length === 0 && filteredBrands.length === 0;
+
+  if (showList) {
+    return (
+      <VehicleListFullScreen
+        list={listWithLogos}
+        queryRaw={queryRaw}
+        typeParam={typeParam}
+      />
+    );
+  }
 
   return (
     <section className="relative overflow-hidden bg-stone-100 py-12 sm:py-14 lg:py-16">
@@ -102,6 +146,7 @@ export default async function VehiclesPage({
           method="get"
           className="sticky top-[78px] z-20 mx-auto mt-6 max-w-4xl rounded-md border border-stone-300/70 bg-white/95 p-2.5 shadow-sm backdrop-blur-sm sm:p-3"
         >
+          {typeParam ? <input type="hidden" name="type" value={typeParam} /> : null}
           <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
             <input
               type="text"
@@ -140,8 +185,8 @@ export default async function VehiclesPage({
               </button>
             </div>
           </div>
-          {queryRaw ? (
-            <div className="mt-2 text-right">
+          {(queryRaw || typeParam) ? (
+            <div className="mt-2 flex justify-end gap-3">
               <Link
                 href="/vehicles"
                 className="text-xs font-medium text-amber-600 hover:text-amber-700"
@@ -153,10 +198,16 @@ export default async function VehiclesPage({
         </form>
 
         <div className="mt-8 grid w-full grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-          {filteredVehicleCards.map((card) => (
-            <article
+          {vehicleCards.map((card) => {
+            const isActive = typeParam === card.id;
+            return (
+            <Link
               key={card.id}
-              className="group relative cursor-pointer overflow-hidden rounded-xl border border-stone-300/70 bg-white transition-all duration-300 hover:-translate-y-0.5 hover:border-stone-400 hover:shadow-xl hover:shadow-stone-400/30"
+              href={isActive ? "/vehicles" : `/vehicles?type=${card.id}`}
+              className={`group relative block cursor-pointer overflow-hidden rounded-xl border bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-stone-400/30 ${
+                isActive ? "border-yellow-500 ring-2 ring-yellow-500/30" : "border-stone-300/70 hover:border-stone-400"
+              }`}
+              aria-current={isActive ? "true" : undefined}
             >
               <div className="relative h-36 w-full">
                 <Image
@@ -172,11 +223,12 @@ export default async function VehiclesPage({
                   {card.label}
                 </p>
                 <p className="absolute right-2 top-2 rounded bg-black/50 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-white sm:text-xs">
-                  {card.membershipTier}
+                  {card.label}
                 </p>
               </div>
-            </article>
-          ))}
+            </Link>
+            );
+          })}
         </div>
 
         <div className="mt-6 grid w-full grid-cols-8 gap-2 lg:gap-3">

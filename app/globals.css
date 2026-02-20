@@ -226,8 +226,69 @@ a {
     opacity: 0;
   }
 }
+@keyframes line-spinner {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+.animate-line-spinner {
+  animation: line-spinner 1s ease-in-out infinite;
+}
 @media (prefers-reduced-motion: reduce) {
   .app-splash__car {
     animation-duration: 2.6s;
   }
+  .animate-line-spinner {
+    animation-duration: 2s;
+  }
+}
+
+/* Vehicle detail page only: hero + panel to match model (no global changes) */
+
+/* Hero wrapper: full viewport so background overlays header; height set inline to 100vh */
+.vehicle-detail-hero {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+/* Frosted glass panel: lighter, vehicle detail only – no header change */
+.vehicle-detail-frosted-panel {
+  background: linear-gradient(
+    160deg,
+    rgba(120, 128, 140, 0.78) 0%,
+    rgba(100, 110, 125, 0.75) 45%,
+    rgba(110, 120, 135, 0.77) 100%
+  );
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 20px 56px rgba(0, 0, 0, 0.25);
+  border-radius: 18px;
+}
+@media (prefers-color-scheme: dark) {
+  .vehicle-detail-frosted-panel {
+    background: linear-gradient(
+      160deg,
+      rgba(90, 98, 110, 0.82) 0%,
+      rgba(75, 85, 100, 0.8) 50%,
+      rgba(82, 92, 108, 0.81) 100%
+    );
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+}
+
+/* Panel inner scroll container: scrollable but scrollbar hidden */
+.vehicle-detail-panel-scroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.vehicle-detail-panel-scroll::-webkit-scrollbar {
+  display: none;
 }
