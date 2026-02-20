@@ -60,12 +60,13 @@ function getLatestAddition() {
   return sorted[0] ?? undefined;
 }
 
-type VehiclesPageProps = {
-  searchParams?: { q?: string };
-};
-
-export default function VehiclesPage({ searchParams }: VehiclesPageProps) {
-  const queryRaw = (searchParams?.q ?? "").trim();
+export default async function VehiclesPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ q?: string } | undefined>;
+}) {
+  const params = await searchParams;
+  const queryRaw = (params?.q ?? "").trim();
   const query = queryRaw.trim().toLowerCase();
   const vehicleCards = getVehicleCards();
   const brandCards = siteContent.brandLogos.map((b) => ({ label: b.name, logo: b.image }));
