@@ -61,13 +61,12 @@ function getLatestAddition() {
 }
 
 type VehiclesPageProps = {
-  searchParams?: {
-    q?: string;
-  };
+  searchParams?: { q?: string } | Promise<{ q?: string } | undefined> | undefined;
 };
 
-export default function VehiclesPage({ searchParams }: VehiclesPageProps) {
-  const queryRaw = (searchParams?.q ?? "").trim();
+export default async function VehiclesPage({ searchParams }: VehiclesPageProps) {
+  const params = searchParams instanceof Promise ? await searchParams : searchParams;
+  const queryRaw = (params?.q ?? "").trim();
   const query = queryRaw.trim().toLowerCase();
   const vehicleCards = getVehicleCards();
   const brandCards = siteContent.brandLogos.map((b) => ({ label: b.name, logo: b.image }));
