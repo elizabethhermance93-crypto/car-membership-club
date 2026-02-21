@@ -21,7 +21,6 @@ export function LineSpinner() {
       className="fixed left-0 right-0 top-0 z-50 h-1 overflow-hidden bg-amber-500/20"
       role="progressbar"
       aria-label="Loading"
-      aria-valuenow={null}
       aria-valuemin={0}
       aria-valuemax={100}
     >
