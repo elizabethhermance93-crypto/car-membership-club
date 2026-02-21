@@ -6,19 +6,13 @@ import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { ArrowLeft, Images, RotateCw, Phone, ChevronDown, Users, DoorOpen, Fuel, Car } from "lucide-react";
 import type { InventoryItem } from "@/content/siteContent";
-import { siteContent } from "@/content/siteContent";
 import { usePreloadImages } from "@/hooks/usePreloadImages";
 
 const INVENTORY_VIEW_BG = "/images/inventory-view-back.jpg";
 
-/** Vehicle image for detail hero: prefer no-background cutout (imageNoBg or hero car by make), else inventory image with mask. */
-function getVehicleHeroImage(vehicle: InventoryItem): { src: string; isCutout: boolean } {
+/** Vehicle image from inventory only: use imageNoBg (transparent cutout) when present, else vehicle.image (apply mask to blend background). */
+function getVehicleDetailImage(vehicle: InventoryItem): { src: string; isCutout: boolean } {
   if (vehicle.imageNoBg) return { src: vehicle.imageNoBg, isCutout: true };
-  const normalized = vehicle.make.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
-  const banner = siteContent.heroBanners?.find(
-    (b) => b.name.toLowerCase() === vehicle.make.toLowerCase() || b.id.toLowerCase() === normalized
-  );
-  if (banner?.carSrc) return { src: banner.carSrc, isCutout: true };
   return { src: vehicle.image, isCutout: false };
 }
 const DEFAULT_PICKUP = "2100 N Greenville Ave #400, Richardson, TX";
@@ -59,9 +53,9 @@ export function InventoryView({
   const reduceMotion = !hasMounted || !!reducedMotion;
   const weeklyAmount = parseDuesPrice(weeklyDues);
 
-  const { src: heroCarImage, isCutout: heroCarIsCutout } = getVehicleHeroImage(vehicle);
+  const { src: vehicleImageSrc, isCutout: vehicleImageIsCutout } = getVehicleDetailImage(vehicle);
   // assetsReady: true only after vehicle data (prop) + bg image + car image are loaded (usePreloadImages). Enter animation runs once when content mounts after overlay hides.
-  const { ready: assetsReady } = usePreloadImages([INVENTORY_VIEW_BG, heroCarImage]);
+  const { ready: assetsReady } = usePreloadImages([INVENTORY_VIEW_BG, vehicleImageSrc]);
   const hasBeenReadyRef = useRef(false);
   const firstContentShownRef = useRef(false);
   const [period, setPeriod] = useState<PeriodId>("weekly");
@@ -150,7 +144,7 @@ export function InventoryView({
   // SPEC: bg enter 350ms | car 520ms delay 120ms | panel 520ms delay 160ms | vehicleId exit 180ms enter 320ms | value crossfade 180ms
   const durationBg = reduceMotion ? 0 : 0.35;
   const durationCar = reduceMotion ? 0 : 0.52;
-  const delayCar = reduceMotion ? 0 : 0.12;
+  const delayCar = reduceMotion ? 0 : durationBg + 0.05; // Car animation starts after page background (model: after bg)
   const durationPanel = reduceMotion ? 0 : 0.52;
   const delayPanel = reduceMotion ? 0 : 0.16;
   const staggerDelay = reduceMotion ? 0 : 0.24; // SPEC: panel rows start 240ms after panel starts
@@ -246,15 +240,15 @@ export function InventoryView({
             />
           </motion.div>
 
-          {/* MODEL: car — car image fades + translates in (SPEC: opacity 0→1, translateY(18px→0) over 520ms, delay 120ms) */}
+          {/* MODEL: car — inventory image only; mask when no transparent cutout (like landing hero). Fades + translates in after bg. */}
           <motion.div
-            className={`absolute bottom-0 left-0 z-[1] h-[52%] max-h-[420px] w-[min(62%,720px)] max-md:left-0 max-md:right-0 max-md:w-full max-md:max-h-[50vh] max-md:object-center will-change-transform ${!heroCarIsCutout ? "vehicle-detail-car-mask" : ""}`}
+            className={`absolute bottom-0 left-0 z-[1] h-[52%] max-h-[420px] w-[min(62%,720px)] max-md:left-0 max-md:right-0 max-md:w-full max-md:max-h-[50vh] max-md:object-center will-change-transform md:left-[8%] ${!vehicleImageIsCutout ? "vehicle-detail-car-mask" : ""}`}
             initial={runFullEnter ? (reduceMotion ? { opacity: 0 } : { opacity: 0, y: 18 }) : false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: durationCar, delay: runFullEnter ? delayCar : 0, ease }}
           >
             <Image
-              src={heroCarImage}
+              src={vehicleImageSrc}
               alt={displayName}
               fill
               className="object-contain object-left-bottom max-md:object-center"

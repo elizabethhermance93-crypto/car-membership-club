@@ -255,6 +255,40 @@ a {
   width: 100%;
 }
 
+/* Vehicle image mask when using inventory image with background (not transparent cutout): blend edges into hero so background is hidden, like landing hero car. */
+.vehicle-detail-car-mask {
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 15%,
+    black 85%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 15%,
+    black 85%,
+    transparent 100%
+  );
+}
+.vehicle-detail-car-mask img {
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 12%,
+    black 88%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 12%,
+    black 88%,
+    transparent 100%
+  );
+}
+
 /* Frosted glass panel: lighter, vehicle detail only – no header change */
 .vehicle-detail-frosted-panel {
   background: linear-gradient(
