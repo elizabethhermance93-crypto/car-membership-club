@@ -18,16 +18,25 @@ export function usePreloadImages(urls: string[]): { ready: boolean; progress: nu
 
   useEffect(() => {
     if (n === 0) return;
+    let cancelled = false;
+    const schedule = (fn: () => void) => {
+      queueMicrotask(() => {
+        if (!cancelled) fn();
+      });
+    };
     urls.forEach((url, i) => {
       const img = new Image();
       img.onload = () => {
-        setLoaded((prev) => ({ ...prev, [i]: true }));
+        schedule(() => setLoaded((prev) => ({ ...prev, [i]: true })));
       };
       img.onerror = () => {
-        setLoaded((prev) => ({ ...prev, [i]: true }));
+        schedule(() => setLoaded((prev) => ({ ...prev, [i]: true })));
       };
       img.src = url;
     });
+    return () => {
+      cancelled = true;
+    };
   }, [urlsKey, n]);
 
   const count = Object.keys(loaded).length;

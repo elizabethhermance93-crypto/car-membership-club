@@ -1,19 +1,36 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
 const MIN_VISIBLE_MS = 550;
 const FADE_OUT_MS = 220;
 const HERO_READY_EVENT = "app-hero-ready";
+const PAGE_READY_EVENT = "app-page-ready";
 const HERO_WAIT_FALLBACK_MS = 1400;
 
 type SplashPhase = "show" | "hide" | "done";
 
 export function AppSplashScreen() {
+  const pathname = usePathname();
+  const prevPathnameRef = useRef(pathname);
   const [phase, setPhase] = useState<SplashPhase>("show");
   const [carSrc, setCarSrc] = useState("/splash/car-user.png");
 
+  // On route change, show the line spinner again (whenever user navigates to another page)
   useEffect(() => {
+    if (prevPathnameRef.current !== pathname) {
+      prevPathnameRef.current = pathname;
+      if (phase === "done") {
+        setPhase("show");
+      }
+    }
+  }, [pathname, phase]);
+
+  // When phase is "show", wait for page to signal ready (hero or app-page-ready) and minimum visible time
+  useEffect(() => {
+    if (phase !== "show") return;
+
     let heroReady = false;
     let minElapsed = false;
     let minTimer: ReturnType<typeof setTimeout> | null = null;
@@ -29,7 +46,7 @@ export function AppSplashScreen() {
       }
     };
 
-    const onHeroReady = () => {
+    const onReady = () => {
       heroReady = true;
       maybeHide();
     };
@@ -39,20 +56,21 @@ export function AppSplashScreen() {
       maybeHide();
     }, MIN_VISIBLE_MS);
 
-    // If this route doesn't include Hero, do not block forever.
     heroFallbackTimer = setTimeout(() => {
-      onHeroReady();
+      onReady();
     }, HERO_WAIT_FALLBACK_MS);
 
-    window.addEventListener(HERO_READY_EVENT, onHeroReady as EventListener);
+    window.addEventListener(HERO_READY_EVENT, onReady as EventListener);
+    window.addEventListener(PAGE_READY_EVENT, onReady as EventListener);
 
     return () => {
-      window.removeEventListener(HERO_READY_EVENT, onHeroReady as EventListener);
+      window.removeEventListener(HERO_READY_EVENT, onReady as EventListener);
+      window.removeEventListener(PAGE_READY_EVENT, onReady as EventListener);
       if (minTimer) clearTimeout(minTimer);
       if (heroFallbackTimer) clearTimeout(heroFallbackTimer);
       if (doneTimer) clearTimeout(doneTimer);
     };
-  }, []);
+  }, [phase]);
 
   useEffect(() => {
     let cancelled = false;

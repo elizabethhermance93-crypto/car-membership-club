@@ -69,8 +69,36 @@ export function InventoryView({
     }, 1200);
     return () => clearTimeout(t);
   }, [assetsReady]);
-  const showLoadingOverlay = !assetsReady && !hasBeenReadyRef.current;
-  const runFullEnter = hasMounted && !reduceMotion && assetsReady && !firstContentShownRef.current;
+
+  // Phase: "wait" = loading (hero hidden); "static" = show hero with no animation; "enter" = show hero with enter animation
+  // Fallback: if preload never fires ready, show hero after delay so user never sees only black
+  const [fallbackShowHero, setFallbackShowHero] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setFallbackShowHero(true), 2500);
+    return () => clearTimeout(t);
+  }, []);
+  const effectivelyReady = assetsReady || fallbackShowHero;
+  const enterPhase =
+    !effectivelyReady || !hasMounted ? "wait" : reduceMotion ? "static" : "enter";
+  const runFullEnter = enterPhase === "enter";
+
+  // Overlay: show until (assets ready OR fallback) AND minimum time so user always sees the round spinner
+  const [overlayMinTimeMet, setOverlayMinTimeMet] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setOverlayMinTimeMet(true), 480);
+    return () => clearTimeout(t);
+  }, []);
+  const showLoadingOverlay =
+    (!effectivelyReady || !overlayMinTimeMet) && !hasBeenReadyRef.current;
+
+  // Tell global splash (line spinner) that this page is ready so it can hide after navigation
+  useEffect(() => {
+    if (!effectivelyReady || !overlayMinTimeMet) return;
+    hasBeenReadyRef.current = true;
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("app-page-ready"));
+    }
+  }, [effectivelyReady, overlayMinTimeMet]);
 
   const periodOptions: { id: PeriodId; label: string; multiplier: number }[] = [
     { id: "weekly", label: "Weekly", multiplier: 1 },
@@ -104,13 +132,16 @@ export function InventoryView({
   }, [periodDropdownOpen]);
 
   const ease = [0.22, 1, 0.36, 1] as const;
-  const durationBg = reduceMotion ? 0 : 0.38;
-  const durationContent = reduceMotion ? 0 : 0.55;
-  const durationContentFast = reduceMotion ? 0 : 0.35;
-  const delayCar = reduceMotion ? 0 : 0.16;
-  const delayPanel = reduceMotion ? 0 : 0.2;
-  const staggerDelay = reduceMotion ? 0 : 0.25;
-  const staggerChildren = reduceMotion ? 0 : 0.04;
+  // Longer durations so transitions are clearly visible (was 0.38 / 0.55 / 0.35)
+  const durationBg = reduceMotion ? 0 : 0.75;
+  const durationContent = reduceMotion ? 0 : 1;
+  const durationContentFast = reduceMotion ? 0 : 0.6;
+  const delayCar = reduceMotion ? 0 : 0.35;
+  const delayPanel = reduceMotion ? 0 : 0.4;
+  const staggerDelay = reduceMotion ? 0 : 0.45;
+  const staggerChildren = reduceMotion ? 0 : 0.08;
+  // Small delay so initial state paints before animation starts
+  const enterStartDelay = reduceMotion ? 0 : 0.15;
 
   const panelStaggerContainer = {
     hidden: {},
@@ -129,24 +160,27 @@ export function InventoryView({
 
   return (
     <>
-      {/* Loading overlay: dark until assets (bg + car image) are ready; no layout shift */}
+      {/* Round spinner: show until assets ready + min time; ensures user sees it on every load/navigation */}
       <AnimatePresence>
         {showLoadingOverlay && (
           <motion.div
             className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950"
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: reduceMotion ? 0 : 0.28, ease }}
+            transition={{ duration: reduceMotion ? 0 : 0.45, ease }}
           >
             <motion.div
-              className="h-8 w-8 rounded-full border-2 border-white/30 border-t-white"
+              className="h-8 w-8 shrink-0 rounded-full border-2 border-white/30 border-t-white"
               animate={{ rotate: 360 }}
               transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              aria-hidden
             />
           </motion.div>
         )}
       </AnimatePresence>
 
+      {/* Hero + panel mount only after overlay hides so enter animations run visibly (not under the overlay) */}
+      {!showLoadingOverlay && (
       <section className="relative w-full bg-stone-950 md:min-h-[calc(100vh+5rem)]">
         {/* Hero: on mobile fixed height so vehicle is visible; on desktop full viewport overlay */}
         <div
@@ -154,18 +188,20 @@ export function InventoryView({
         >
           <AnimatePresence mode="wait">
             <motion.div
-              key={vehicle.id}
+              key={`${vehicle.id}-${enterPhase}`}
               className="absolute inset-0"
               initial={
-                reduceMotion
-                  ? false
-                  : firstContentShownRef.current
-                    ? { opacity: 0, y: 8 }
-                    : { opacity: 1, y: 0 }
+                enterPhase === "wait"
+                  ? { opacity: 0 }
+                  : enterPhase === "static"
+                    ? false
+                    : { opacity: 0, y: 14 }
               }
-              animate={{ opacity: 1, y: 0 }}
-              exit={reduceMotion ? {} : { opacity: 0, y: 8, transition: { duration: 0.2, ease } }}
-              transition={{ duration: reduceMotion ? 0 : 0.35, ease }}
+              animate={
+                enterPhase === "wait" ? { opacity: 0 } : { opacity: 1, y: 0 }
+              }
+              exit={reduceMotion ? {} : { opacity: 0, y: 14, transition: { duration: 0.25, ease } }}
+              transition={{ duration: reduceMotion ? 0 : 0.6, delay: enterStartDelay, ease }}
             >
           {/* 1) Background: shared inventory view image + vignette; fade in + subtle zoom-out */}
           <motion.div
@@ -176,8 +212,8 @@ export function InventoryView({
               reduceMotion
                 ? { duration: 0 }
                 : {
-                    opacity: { duration: durationBg, ease },
-                    scale: { duration: runFullEnter ? 8 : 0.5, delay: runFullEnter ? 0.15 : 0, ease },
+                    opacity: { duration: durationBg, delay: enterStartDelay, ease },
+                    scale: { duration: runFullEnter ? 10 : 0.6, delay: runFullEnter ? enterStartDelay + 0.2 : 0, ease },
                   }
             }
           >
@@ -210,9 +246,9 @@ export function InventoryView({
           {/* 2) Car image: on mobile full-width centered; on desktop bottom-left */}
           <motion.div
             className="absolute bottom-0 left-0 z-[1] h-[52%] max-h-[420px] w-[min(62%,720px)] max-md:left-0 max-md:right-0 max-md:w-full max-md:max-h-[50vh] max-md:object-center will-change-transform"
-            initial={runFullEnter ? { opacity: 0, y: reduceMotion ? 0 : 20, scale: reduceMotion ? 1 : 0.985 } : false}
+            initial={runFullEnter ? { opacity: 0, y: reduceMotion ? 0 : 28, scale: reduceMotion ? 1 : 0.97 } : false}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: durationContent, delay: runFullEnter ? delayCar : 0, ease }}
+            transition={{ duration: durationContent, delay: runFullEnter ? enterStartDelay + delayCar : 0, ease }}
           >
             <Image
               src={vehicle.image}
@@ -230,7 +266,7 @@ export function InventoryView({
             className="absolute left-0 right-0 top-[72px] z-10 flex items-center justify-between gap-3 bg-black/50 px-4 py-3 md:hidden"
             initial={runFullEnter ? { opacity: 0, y: reduceMotion ? 0 : 6 } : false}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: durationContentFast, delay: runFullEnter ? delayPanel + 0.08 : 0, ease }}
+            transition={{ duration: durationContentFast, delay: runFullEnter ? enterStartDelay + delayPanel + 0.08 : 0, ease }}
           >
             <div className="flex min-w-0 flex-1 items-center gap-3">
               {logoUrl ? (
@@ -257,7 +293,7 @@ export function InventoryView({
             className="absolute left-6 top-[102px] z-10 hidden flex-wrap items-center gap-3 md:left-8 md:flex"
             initial={runFullEnter ? { opacity: 0, y: reduceMotion ? 0 : 6 } : false}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: durationContentFast, delay: runFullEnter ? delayPanel + 0.08 : 0, ease }}
+            transition={{ duration: durationContentFast, delay: runFullEnter ? enterStartDelay + delayPanel + 0.08 : 0, ease }}
           >
             <Link
               href="/vehicles"
@@ -288,9 +324,9 @@ export function InventoryView({
         {/* Panel: below hero on mobile (in flow); overlay right on desktop */}
         <motion.aside
           className="vehicle-detail-frosted-panel relative z-10 w-full rounded-t-[18px] md:absolute md:left-auto md:right-6 md:top-[50%] md:max-h-[calc(100vh-72px)] md:w-[520px] md:-translate-y-1/2 md:rounded-[18px] lg:right-8 lg:w-[560px] will-change-transform"
-            initial={runFullEnter ? { opacity: 0, x: reduceMotion ? 0 : 24 } : false}
+            initial={runFullEnter ? { opacity: 0, x: reduceMotion ? 0 : 32 } : false}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: durationContent, delay: runFullEnter ? delayPanel : 0, ease }}
+            transition={{ duration: durationContent, delay: runFullEnter ? enterStartDelay + delayPanel : 0, ease }}
           >
             <div className="flex min-h-0 flex-col md:max-h-[calc(100vh-72px)]">
             {/* Panel header: logo, title, Get Help */}
@@ -537,6 +573,7 @@ export function InventoryView({
           </div>
         </motion.aside>
       </section>
+      )}
     </>
   );
 }
