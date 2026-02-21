@@ -143,6 +143,8 @@ export type InventoryItem = {
   membershipTier: string;
   category: "SUV" | "Sedan" | "Coupe";
   image: string;
+  /** Optional: same vehicle without background (cutout) for detail hero. Use remove.bg or similar. */
+  imageNoBg?: string;
   type: string;
   thumbnails: Array<String>;
   blurb?: string;

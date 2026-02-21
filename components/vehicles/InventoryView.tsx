@@ -6,9 +6,21 @@ import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { ArrowLeft, Images, RotateCw, Phone, ChevronDown, Users, DoorOpen, Fuel, Car } from "lucide-react";
 import type { InventoryItem } from "@/content/siteContent";
+import { siteContent } from "@/content/siteContent";
 import { usePreloadImages } from "@/hooks/usePreloadImages";
 
 const INVENTORY_VIEW_BG = "/images/inventory-view-back.jpg";
+
+/** Vehicle image for detail hero: prefer no-background cutout (imageNoBg or hero car by make), else inventory image with mask. */
+function getVehicleHeroImage(vehicle: InventoryItem): { src: string; isCutout: boolean } {
+  if (vehicle.imageNoBg) return { src: vehicle.imageNoBg, isCutout: true };
+  const normalized = vehicle.make.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+  const banner = siteContent.heroBanners?.find(
+    (b) => b.name.toLowerCase() === vehicle.make.toLowerCase() || b.id.toLowerCase() === normalized
+  );
+  if (banner?.carSrc) return { src: banner.carSrc, isCutout: true };
+  return { src: vehicle.image, isCutout: false };
+}
 const DEFAULT_PICKUP = "2100 N Greenville Ave #400, Richardson, TX";
 const DEFAULT_ZIP = "75082";
 const DEFAULT_PICKUP_FULL = `${DEFAULT_PICKUP} ${DEFAULT_ZIP}`;
@@ -47,7 +59,9 @@ export function InventoryView({
   const reduceMotion = !hasMounted || !!reducedMotion;
   const weeklyAmount = parseDuesPrice(weeklyDues);
 
-  const { ready: assetsReady } = usePreloadImages([INVENTORY_VIEW_BG, vehicle.image]);
+  const { src: heroCarImage, isCutout: heroCarIsCutout } = getVehicleHeroImage(vehicle);
+  // assetsReady: true only after vehicle data (prop) + bg image + car image are loaded (usePreloadImages). Enter animation runs once when content mounts after overlay hides.
+  const { ready: assetsReady } = usePreloadImages([INVENTORY_VIEW_BG, heroCarImage]);
   const hasBeenReadyRef = useRef(false);
   const firstContentShownRef = useRef(false);
   const [period, setPeriod] = useState<PeriodId>("weekly");
@@ -131,17 +145,19 @@ export function InventoryView({
     };
   }, [periodDropdownOpen]);
 
+  // SPEC: cubic-bezier(0.22, 1, 0.36, 1) — model page easing
   const ease = [0.22, 1, 0.36, 1] as const;
-  // Longer durations so transitions are clearly visible (was 0.38 / 0.55 / 0.35)
-  const durationBg = reduceMotion ? 0 : 0.75;
-  const durationContent = reduceMotion ? 0 : 1;
-  const durationContentFast = reduceMotion ? 0 : 0.6;
-  const delayCar = reduceMotion ? 0 : 0.35;
-  const delayPanel = reduceMotion ? 0 : 0.4;
-  const staggerDelay = reduceMotion ? 0 : 0.45;
-  const staggerChildren = reduceMotion ? 0 : 0.08;
-  // Small delay so initial state paints before animation starts
-  const enterStartDelay = reduceMotion ? 0 : 0.15;
+  // SPEC: bg enter 350ms | car 520ms delay 120ms | panel 520ms delay 160ms | vehicleId exit 180ms enter 320ms | value crossfade 180ms
+  const durationBg = reduceMotion ? 0 : 0.35;
+  const durationCar = reduceMotion ? 0 : 0.52;
+  const delayCar = reduceMotion ? 0 : 0.12;
+  const durationPanel = reduceMotion ? 0 : 0.52;
+  const delayPanel = reduceMotion ? 0 : 0.16;
+  const staggerDelay = reduceMotion ? 0 : 0.24; // SPEC: panel rows start 240ms after panel starts
+  const staggerChildren = reduceMotion ? 0 : 0.04; // SPEC: 40ms per row
+  const durationValueCrossfade = reduceMotion ? 0 : 0.18; // SPEC: value updates crossfade 180ms
+  const durationVehicleExit = reduceMotion ? 0 : 0.18; // SPEC: vehicleId change exit 180ms
+  const durationVehicleEnter = reduceMotion ? 0 : 0.32; // SPEC: vehicleId change enter 320ms
 
   const panelStaggerContainer = {
     hidden: {},
@@ -182,40 +198,27 @@ export function InventoryView({
       {/* Hero + panel mount only after overlay hides so enter animations run visibly (not under the overlay) */}
       {!showLoadingOverlay && (
       <section className="relative w-full bg-stone-950 md:min-h-[calc(100vh+5rem)]">
+        {/* SPEC: vehicleId change — AnimatePresence mode="wait" exit 180ms enter 320ms (model crossfade, no flash) */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={vehicle.id}
+            className="relative w-full md:min-h-[calc(100vh+5rem)]"
+            initial={enterPhase === "wait" ? { opacity: 0 } : enterPhase === "static" ? false : reduceMotion ? { opacity: 0 } : { opacity: 0, y: 8 }}
+            animate={enterPhase === "wait" ? { opacity: 0 } : { opacity: 1, y: 0 }}
+            exit={reduceMotion ? {} : { opacity: 0, y: 8, transition: { duration: durationVehicleExit, ease } }}
+            transition={{ duration: durationVehicleEnter, ease }}
+          >
         {/* Hero: on mobile fixed height so vehicle is visible; on desktop full viewport overlay */}
         <div
           className="vehicle-detail-hero relative h-[60vh] w-full md:absolute md:left-0 md:right-0 md:top-0 md:h-[calc(100vh+5rem)]"
         >
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={`${vehicle.id}-${enterPhase}`}
-              className="absolute inset-0"
-              initial={
-                enterPhase === "wait"
-                  ? { opacity: 0 }
-                  : enterPhase === "static"
-                    ? false
-                    : { opacity: 0, y: 14 }
-              }
-              animate={
-                enterPhase === "wait" ? { opacity: 0 } : { opacity: 1, y: 0 }
-              }
-              exit={reduceMotion ? {} : { opacity: 0, y: 14, transition: { duration: 0.25, ease } }}
-              transition={{ duration: reduceMotion ? 0 : 0.6, delay: enterStartDelay, ease }}
-            >
-          {/* 1) Background: shared inventory view image + vignette; fade in + subtle zoom-out */}
+          <div className="absolute inset-0">
+          {/* MODEL: bg — background fades in smoothly (SPEC: opacity 0→1 over 350ms) */}
           <motion.div
             className="absolute inset-0 will-change-transform"
-            initial={runFullEnter ? { opacity: 0, scale: reduceMotion ? 1 : 1.04 } : false}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={
-              reduceMotion
-                ? { duration: 0 }
-                : {
-                    opacity: { duration: durationBg, delay: enterStartDelay, ease },
-                    scale: { duration: runFullEnter ? 10 : 0.6, delay: runFullEnter ? enterStartDelay + 0.2 : 0, ease },
-                  }
-            }
+            initial={runFullEnter ? { opacity: 0 } : false}
+            animate={{ opacity: 1 }}
+            transition={{ duration: durationBg, ease }}
           >
             <Image
               src={INVENTORY_VIEW_BG}
@@ -243,15 +246,15 @@ export function InventoryView({
             />
           </motion.div>
 
-          {/* 2) Car image: on mobile full-width centered; on desktop bottom-left */}
+          {/* MODEL: car — car image fades + translates in (SPEC: opacity 0→1, translateY(18px→0) over 520ms, delay 120ms) */}
           <motion.div
-            className="absolute bottom-0 left-0 z-[1] h-[52%] max-h-[420px] w-[min(62%,720px)] max-md:left-0 max-md:right-0 max-md:w-full max-md:max-h-[50vh] max-md:object-center will-change-transform"
-            initial={runFullEnter ? { opacity: 0, y: reduceMotion ? 0 : 28, scale: reduceMotion ? 1 : 0.97 } : false}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: durationContent, delay: runFullEnter ? enterStartDelay + delayCar : 0, ease }}
+            className={`absolute bottom-0 left-0 z-[1] h-[52%] max-h-[420px] w-[min(62%,720px)] max-md:left-0 max-md:right-0 max-md:w-full max-md:max-h-[50vh] max-md:object-center will-change-transform ${!heroCarIsCutout ? "vehicle-detail-car-mask" : ""}`}
+            initial={runFullEnter ? (reduceMotion ? { opacity: 0 } : { opacity: 0, y: 18 }) : false}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: durationCar, delay: runFullEnter ? delayCar : 0, ease }}
           >
             <Image
-              src={vehicle.image}
+              src={heroCarImage}
               alt={displayName}
               fill
               className="object-contain object-left-bottom max-md:object-center"
@@ -264,9 +267,9 @@ export function InventoryView({
           {/* 3a) Mobile-only: hero bar with vehicle info left + Return right (match model) */}
           <motion.div
             className="absolute left-0 right-0 top-[72px] z-10 flex items-center justify-between gap-3 bg-black/50 px-4 py-3 md:hidden"
-            initial={runFullEnter ? { opacity: 0, y: reduceMotion ? 0 : 6 } : false}
+            initial={runFullEnter ? (reduceMotion ? { opacity: 0 } : { opacity: 0, y: 6 }) : false}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: durationContentFast, delay: runFullEnter ? enterStartDelay + delayPanel + 0.08 : 0, ease }}
+            transition={{ duration: durationPanel, delay: runFullEnter ? delayPanel + 0.08 : 0, ease }}
           >
             <div className="flex min-w-0 flex-1 items-center gap-3">
               {logoUrl ? (
@@ -291,9 +294,9 @@ export function InventoryView({
           {/* 3b) Desktop: top row with Return, View Photos, View Interior */}
           <motion.div
             className="absolute left-6 top-[102px] z-10 hidden flex-wrap items-center gap-3 md:left-8 md:flex"
-            initial={runFullEnter ? { opacity: 0, y: reduceMotion ? 0 : 6 } : false}
+            initial={runFullEnter ? (reduceMotion ? { opacity: 0 } : { opacity: 0, y: 6 }) : false}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: durationContentFast, delay: runFullEnter ? enterStartDelay + delayPanel + 0.08 : 0, ease }}
+            transition={{ duration: durationPanel, delay: runFullEnter ? delayPanel + 0.08 : 0, ease }}
           >
             <Link
               href="/vehicles"
@@ -317,17 +320,16 @@ export function InventoryView({
               View Interior
             </button>
           </motion.div>
-            </motion.div>
-          </AnimatePresence>
+          </div>
         </div>
 
-        {/* Panel: below hero on mobile (in flow); overlay right on desktop */}
+        {/* MODEL: panel — right glass panel fades + translates in (SPEC: opacity 0→1, translateX(24px→0) over 520ms, delay 160ms) */}
         <motion.aside
           className="vehicle-detail-frosted-panel relative z-10 w-full rounded-t-[18px] md:absolute md:left-auto md:right-6 md:top-[50%] md:max-h-[calc(100vh-72px)] md:w-[520px] md:-translate-y-1/2 md:rounded-[18px] lg:right-8 lg:w-[560px] will-change-transform"
-            initial={runFullEnter ? { opacity: 0, x: reduceMotion ? 0 : 32 } : false}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: durationContent, delay: runFullEnter ? enterStartDelay + delayPanel : 0, ease }}
-          >
+          initial={runFullEnter ? (reduceMotion ? { opacity: 0 } : { opacity: 0, x: 24 }) : false}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: durationPanel, delay: runFullEnter ? delayPanel : 0, ease }}
+        >
             <div className="flex min-h-0 flex-col md:max-h-[calc(100vh-72px)]">
             {/* Panel header: logo, title, Get Help */}
             <div className="flex shrink-0 items-start justify-between gap-3 border-b border-white/10 px-4 pt-4 pb-3 md:px-5 md:pt-5">
@@ -540,7 +542,7 @@ export function InventoryView({
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      transition={{ duration: reduceMotion ? 0 : 0.2 }}
+                      transition={{ duration: durationValueCrossfade, ease }}
                     >
                       {displayDuesFormatted}
                     </motion.span>
@@ -550,12 +552,13 @@ export function InventoryView({
             </div>
 
             {/* CTAs – stacked full-width on mobile, row on desktop (staggered enter) */}
+            {/* MODEL: panel rows/buttons — subtle stagger (SPEC: 40ms per row, starting 240ms after panel starts) */}
             <motion.div
               className="shrink-0 flex flex-col gap-3 border-t border-white/10 px-4 pt-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] md:flex-row md:px-5 md:pb-5"
               variants={panelStaggerItem}
               initial="hidden"
               animate={runFullEnter ? "visible" : "hidden"}
-              transition={{ duration: durationContentFast, ease, delay: staggerDelay + staggerChildren * 12 }}
+              transition={{ duration: 0.35, ease, delay: staggerDelay + staggerChildren * 12 }}
             >
               <Link
                 href="/#pricing"
@@ -572,6 +575,8 @@ export function InventoryView({
             </motion.div>
           </div>
         </motion.aside>
+          </motion.div>
+        </AnimatePresence>
       </section>
       )}
     </>
@@ -608,7 +613,7 @@ function DetailRow({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: reducedMotion ? 0 : 0.2 }}
+            transition={{ duration: reducedMotion ? 0 : 0.18, ease: [0.22, 1, 0.36, 1] }}
           >
             {content}
           </motion.span>
